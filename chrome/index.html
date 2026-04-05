@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Scanner & Generator</title>
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --bg: #F9FAFB;
+      --card-bg: #FFFFFF;
+      --text-main: #111827;
+      --text-muted: #6B7280;
+      --border: #E5E7EB;
+    }
+
+    body {
+      width: 360px;
+      min-height: 520px;
+      margin: 0;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+    }
+
+    .container {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: left;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+      color: var(--text-main);
+    }
+
+    .input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    button, .file-btn-label {
+      flex: 1;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px 16px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      text-align: center;
+      box-sizing: border-box;
+      text-decoration: none;
+    }
+
+    button:hover, .file-btn-label:hover {
+      background-color: var(--primary-hover);
+    }
+
+    button:active, .file-btn-label:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background-color: #F3F4F6;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background-color: #E5E7EB;
+    }
+
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background: white;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      min-height: 200px;
+    }
+
+    .divider {
+      height: 1px;
+      background-color: var(--border);
+      margin: 4px 0;
+    }
+
+    .result-box {
+      background-color: #F3F4F6;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      word-break: break-all;
+      color: var(--text-main);
+      min-height: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: -9999px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- GENERATOR SECTION -->
+    <h2>Generate QR</h2>
+    <div class="input-group">
+      <input id="qr-txt" type="text" placeholder="Enter text or URL to convert" class="input" />
+      <div class="btn-row">
+        <button id="gen-btn" type="button">Generate</button>
+        <button id="clip-btn" type="button" class="btn-secondary" title="Paste from clipboard">📋 Paste</button>
+      </div>
+    </div>
+
+    <div id="qrcode">
+      <span style="color: var(--text-muted); font-size: 14px;">QR Code will appear here</span>
+    </div>
+
+    <button id="download-btn" type="button" class="btn-secondary" style="width: 100%">Download QR Image</button>
+
+    <div class="divider"></div>
+
+    <!-- SCANNER SECTION -->
+    <h2>Scan QR File</h2>
+    <div class="file-input-wrapper">
+      <label class="file-btn-label" for="img-in">
+        Upload QR Image
+      </label>
+      <input id="img-in" type="file" accept="image/*" />
+    </div>
+
+    <div class="input-group">
+      <div class="result-box" id="out-qr-txt">No QR scanned yet...</div>
+      <button id="copy-btn" type="button" class="btn-secondary">Copy Result</button>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="qrcode.min.js"></script>
+  <script type="module" src="index.js"></script>
+</body>
+</html>

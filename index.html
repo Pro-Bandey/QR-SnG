@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Reader</title>
+
+<style>
+:root {
+  --bg: #ffffff;
+  --text: #111;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: 0.3s;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 15px;
+}
+
+textarea {
+  width: 100%;
+  height: 120px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+/* Sticky Controls */
+.controls {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  padding: 10px 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+button, select, input {
+  padding: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Preview */
+.preview {
+  margin-top: 15px;
+  padding: 20px;
+  border-radius: 10px;
+  max-height: 60vh;
+  overflow-y: auto;
+  line-height: 1.6;
+  max-width: 65ch;
+}
+
+/* Themes */
+.dark { --bg: #111; --text: #eee; }
+.sepia { --bg: #f4ecd8; --text: #5b4636; }
+.high { --bg: #000; --text: yellow; }
+
+/* Highlight line */
+.highlight span.active {
+  background: rgba(255,255,0,0.3);
+}
+
+/* Mobile */
+@media(max-width:600px){
+  button, select {
+    flex: 1;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>📖 Advanced Reader</h2>
+
+<textarea id="inputText" placeholder="Paste text here..."></textarea>
+
+<div class="controls">
+  <!-- Themes -->
+  <select id="theme">
+    <option value="">Normal</option>
+    <option value="dark">Dark</option>
+    <option value="sepia">Sepia</option>
+    <option value="high">High Contrast</option>
+  </select>
+
+  <!-- Readability -->
+  <select id="width">
+    <option value="65ch">Normal Width</option>
+    <option value="50ch">Narrow</option>
+    <option value="80ch">Wide</option>
+  </select>
+
+  <select id="spacing">
+    <option value="1.6">Normal Spacing</option>
+    <option value="2">Wide Spacing</option>
+  </select>
+
+  <button onclick="toggleHighlight()">Highlight</button>
+
+  <!-- Scroll -->
+  <button onclick="startScroll()">▶ Scroll</button>
+  <button onclick="stopScroll()">⏸ Stop</button>
+  <input type="range" id="scrollSpeed" min="1" max="10" value="3">
+
+  <!-- TTS -->
+  <button onclick="playTTS()">🔊 Play</button>
+  <button onclick="pauseTTS()">⏸</button>
+  <button onclick="stopTTS()">⏹</button>
+
+  <select id="voices"></select>
+  <input type="range" id="ttsSpeed" min="0.5" max="2" step="0.1" value="1">
+</div>
+
+<div id="preview" class="preview"></div>
+</div>
+
+<script>
+const textarea = document.getElementById("inputText");
+const preview = document.getElementById("preview");
+
+/* ================= TEXT + URL ================= */
+textarea.addEventListener("input", update);
+
+function update(){
+  const text = textarea.value;
+  preview.innerHTML = text.split("\n").map(l => `<span>${l}</span>`).join("<br>");
+  saveState();
+}
+
+// function saveState(){
+//   const state = {
+//     txt: textarea.value,
+//     theme: document.body.className
+//   };
+//   const url = `?data=${encodeURIComponent(JSON.stringify(state))}`;
+//   history.replaceState(null, "", url);
+//   localStorage.setItem("readerState", JSON.stringify(state));
+// }
+
+function saveState(){
+  const text = textarea.value;
+  const theme = document.body.className;
+
+  const params = new URLSearchParams();
+
+  // Replace spaces with +
+  params.set("txt", text.replace(/\s/g, "+"));
+  params.set("theme", theme);
+
+  const url = "?" + params.toString();
+  history.replaceState(null, "", url);
+
+  // still keep local backup
+  localStorage.setItem("readerText", text);
+  localStorage.setItem("readerTheme", theme);
+}
+
+// function loadState(){
+//   const params = new URLSearchParams(location.search);
+//   let data = params.get("data");
+
+//   if(!data){
+//     data = localStorage.getItem("readerState");
+//   }
+
+//   if(data){
+//     const state = JSON.parse(decodeURIComponent(data));
+//     textarea.value = state.txt || "";
+//     document.body.className = state.theme || "";
+//     update();
+//   }
+// }
+
+function loadState(){
+  const params = new URLSearchParams(location.search);
+
+  let text = params.get("txt");
+  let theme = params.get("theme");
+
+  // Convert + back to spaces
+  if(text){
+    text = text.replace(/\+/g, " ");
+  } else {
+    text = localStorage.getItem("readerText");
+  }
+
+  if(!theme){
+    theme = localStorage.getItem("readerTheme");
+  }
+
+  if(text){
+    textarea.value = text;
+  }
+
+  if(theme){
+    document.body.className = theme;
+  }
+
+  update();
+}
+
+/* ================= THEMES ================= */
+document.getElementById("theme").onchange = (e)=>{
+  document.body.className = e.target.value;
+  saveState();
+};
+
+/* ================= READABILITY ================= */
+document.getElementById("width").onchange = e=>{
+  preview.style.maxWidth = e.target.value;
+};
+
+document.getElementById("spacing").onchange = e=>{
+  preview.style.lineHeight = e.target.value;
+};
+
+/* ================= AUTO SCROLL ================= */
+let scrollInterval;
+
+function startScroll(){
+  stopScroll();
+  const speed = document.getElementById("scrollSpeed").value;
+
+  scrollInterval = setInterval(()=>{
+    preview.scrollTop += 1;
+  }, 40 / speed);
+}
+
+function stopScroll(){
+  clearInterval(scrollInterval);
+}
+
+/* ================= HIGHLIGHT ================= */
+let highlightOn = false;
+
+function toggleHighlight(){
+  highlightOn = !highlightOn;
+  preview.classList.toggle("highlight");
+
+  if(highlightOn){
+    preview.addEventListener("scroll", highlightLine);
+  } else {
+    preview.removeEventListener("scroll", highlightLine);
+  }
+}
+
+function highlightLine(){
+  const spans = preview.querySelectorAll("span");
+  let closest;
+
+  spans.forEach(span=>{
+    const rect = span.getBoundingClientRect();
+    if(rect.top > 0 && rect.top < window.innerHeight/2){
+      closest = span;
+    }
+    span.classList.remove("active");
+  });
+
+  if(closest) closest.classList.add("active");
+}
+
+/* ================= TTS ================= */
+let utterance;
+let voices = [];
+
+function loadVoices(){
+  voices = speechSynthesis.getVoices();
+  const select = document.getElementById("voices");
+  select.innerHTML = voices.map((v,i)=>`<option value="${i}">${v.name}</option>`).join("");
+}
+
+speechSynthesis.onvoiceschanged = loadVoices;
+
+function playTTS(){
+  stopTTS();
+  utterance = new SpeechSynthesisUtterance(textarea.value);
+
+  const voiceIndex = document.getElementById("voices").value;
+  utterance.voice = voices[voiceIndex];
+
+  utterance.rate = document.getElementById("ttsSpeed").value;
+
+  speechSynthesis.speak(utterance);
+}
+
+function pauseTTS(){
+  speechSynthesis.pause();
+}
+
+function stopTTS(){
+  speechSynthesis.cancel();
+}
+
+/* INIT */
+loadState();
+loadVoices();
+</script>
+
+</body>
+</html>
