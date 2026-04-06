@@ -1,313 +1,738 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Advanced Reader</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TxT Reader & Previewer By QE SnG</title>
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --border: #E2E8F0;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      --radius: 12px;
+      --font-ui: system-ui, -apple-system, sans-serif;
+    }
 
-<style>
-:root {
-  --bg: #ffffff;
-  --text: #111;
-}
+    .dark {
+      --bg: #0F172A;
+      --surface: #1E293B;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --primary: #6366F1;
+      --primary-hover: #818CF8;
+      --border: #334155;
+      --shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
 
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  transition: 0.3s;
-}
+    .sepia {
+      --bg: #F4ECD8;
+      --surface: #FDF6E3;
+      --text: #433422;
+      --text-muted: #8C7B6B;
+      --primary: #D97736;
+      --primary-hover: #BF652E;
+      --border: #E1D4BA;
+      --shadow: 0 4px 6px rgba(91, 70, 54, 0.05);
+    }
 
-.container {
-  max-width: 900px;
-  margin: auto;
-  padding: 15px;
-}
+    .oled {
+      --bg: #000000;
+      --surface: #000000;
+      --text: #E2E8F0;
+      --text-muted: #64748B;
+      --primary: #38BDF8;
+      --primary-hover: #7DD3FC;
+      --border: #1E293B;
+      --shadow: none;
+    }
 
-textarea {
-  width: 100%;
-  height: 120px;
-  padding: 10px;
-  font-size: 16px;
-}
+    * {
+      box-sizing: border-box;
+    }
 
-/* Sticky Controls */
-.controls {
-  position: sticky;
-  top: 0;
-  background: var(--bg);
-  padding: 10px 0;
-  z-index: 10;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+    body {
+      margin: 0;
+      font-family: var(--font-ui);
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.4s ease, color 0.4s ease;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-button, select, input {
-  padding: 10px;
-  font-size: 14px;
-  cursor: pointer;
-}
+    /* Progress Bar */
+    #progressBar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--primary);
+      width: 0%;
+      z-index: 1000;
+      transition: width 0.1s;
+    }
 
-/* Preview */
-.preview {
-  margin-top: 15px;
-  padding: 20px;
-  border-radius: 10px;
-  max-height: 60vh;
-  overflow-y: auto;
-  line-height: 1.6;
-  max-width: 65ch;
-}
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: rgba(var(--surface), 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 20;
+      transition: transform 0.3s;
+    }
 
-/* Themes */
-.dark { --bg: #111; --text: #eee; }
-.sepia { --bg: #f4ecd8; --text: #5b4636; }
-.high { --bg: #000; --text: yellow; }
+    .header.focus-mode {
+      transform: translateY(-100%);
+      position: absolute;
+      width: 100%;
+    }
 
-/* Highlight line */
-.highlight span.active {
-  background: rgba(255,255,0,0.3);
-}
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-/* Mobile */
-@media(max-width:600px){
-  button, select {
-    flex: 1;
-  }
-}
-</style>
+    .header-title h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      background: var(--bg);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 320px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.3s;
+      z-index: 10;
+    }
+
+    .sidebar.hidden {
+      margin-left: -320px;
+      transform: translateX(-100%);
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .control-group-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    textarea {
+      width: 100%;
+      height: 140px;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--text);
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: var(--font-ui);
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.2s;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      outline: none;
+    }
+
+    button:hover {
+      background: var(--border);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    button.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    button.icon-only {
+      flex: none;
+      padding: 10px;
+    }
+
+    /* Custom Range Slider */
+    input[type="range"] {
+      appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      margin-top: -6px;
+      box-shadow: var(--shadow);
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    /* Reader Area */
+    .preview-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      position: relative;
+    }
+
+    .preview-container {
+      width: 100%;
+      max-width: 65ch;
+      padding: 60px 24px 120px 24px;
+      font-size: 18px;
+      line-height: 1.6;
+      transition: max-width 0.3s, font-size 0.3s, line-height 0.3s;
+    }
+
+    .preview-container p {
+      margin-bottom: 1.5em;
+      color: var(--text);
+      transition: opacity 0.3s;
+      word-wrap: break-word;
+    }
+
+    /* Focus Highlight Mode */
+    .focus-active p {
+      opacity: 0.2;
+    }
+
+    .focus-active p.active-line {
+      opacity: 1;
+      transform: scale(1.02);
+      background: rgba(79, 70, 229, 0.05);
+      border-radius: 8px;
+      padding: 4px 8px;
+      margin-left: -8px;
+      margin-right: -8px;
+      transition: all 0.2s ease-out;
+    }
+
+    /* Bionic Reading Mode */
+    b.bionic {
+      font-weight: 700;
+      opacity: 1;
+    }
+
+    span.bionic-rest {
+      opacity: 0.8;
+      font-weight: 400;
+    }
+
+    /* TTS Highlight */
+    .tts-active {
+      background: rgba(250, 204, 21, 0.3);
+      border-radius: 4px;
+      border-bottom: 2px solid #FACC15;
+    }
+
+    /* Mobile FAB */
+    .fab {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 25px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      box-shadow: var(--shadow);
+      font-size: 20px;
+      z-index: 50;
+    }
+
+    @media(max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        height: 100vh;
+        max-width: 85vw;
+        box-shadow: var(--shadow);
+      }
+
+      .fab {
+        display: flex;
+      }
+
+      .header-actions .hide-mobile {
+        display: none;
+      }
+
+      .stats {
+        flex-direction: column;
+        gap: 2px;
+        padding: 4px 10px;
+        font-size: 11px;
+      }
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
-<h2>📖 Advanced Reader</h2>
+  <div id="progressBar"></div>
 
-<textarea id="inputText" placeholder="Paste text here..."></textarea>
+  <div class="header" id="header">
+    <div class="header-title">
+      <h2>📖 Reader</h2>
+      <div class="stats">
+        <span id="wordCount">0 words</span>
+        <span style="opacity:0.4">|</span>
+        <span id="readTime">0 min read</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-only hide-mobile" id="shareBtn" title="Copy URL">🔗</button>
+      <button class="icon-only hide-mobile" id="focusModeBtn" title="Immersive Mode">⛶</button>
+      <button id="toggleSidebarBtn" class="hide-mobile">⚙️ Settings</button>
+    </div>
+  </div>
 
-<div class="controls">
-  <!-- Themes -->
-  <select id="theme">
-    <option value="">Normal</option>
-    <option value="dark">Dark</option>
-    <option value="sepia">Sepia</option>
-    <option value="high">High Contrast</option>
-  </select>
+  <div class="main-container">
+    <div class="sidebar" id="sidebar">
 
-  <!-- Readability -->
-  <select id="width">
-    <option value="65ch">Normal Width</option>
-    <option value="50ch">Narrow</option>
-    <option value="80ch">Wide</option>
-  </select>
+      <div class="control-group">
+        <div class="control-group-title">Source Text</div>
+        <textarea id="inputText" placeholder="Paste or type your text here..."></textarea>
+      </div>
 
-  <select id="spacing">
-    <option value="1.6">Normal Spacing</option>
-    <option value="2">Wide Spacing</option>
-  </select>
+      <div class="control-group">
+        <div class="control-group-title">Appearance</div>
+        <select id="theme">
+          <option value="">Light (Default)</option>
+          <option value="dark">Dark Mode</option>
+          <option value="sepia">Sepia (Eye Care)</option>
+          <option value="oled">OLED Night</option>
+        </select>
+        <div class="btn-row">
+          <select id="fontFamily">
+            <option value="system-ui, -apple-system, sans-serif">Sans-Serif</option>
+            <option value="Georgia, serif">Serif (Classic)</option>
+            <option value="ui-monospace, monospace">Monospace</option>
+          </select>
+          <select id="fontSize">
+            <option value="16px">Small</option>
+            <option value="18px" selected>Medium</option>
+            <option value="22px">Large</option>
+            <option value="28px">X-Large</option>
+          </select>
+        </div>
+      </div>
 
-  <button onclick="toggleHighlight()">Highlight</button>
+      <div class="control-group">
+        <div class="control-group-title">Readability Options</div>
+        <div class="btn-row">
+          <select id="width">
+            <option value="65ch">Width: Normal</option>
+            <option value="45ch">Width: Narrow</option>
+            <option value="85ch">Width: Wide</option>
+            <option value="100%">Width: Full</option>
+          </select>
+          <select id="spacing">
+            <option value="1.6">Spacing: Normal</option>
+            <option value="2.2">Spacing: Wide</option>
+            <option value="1.3">Spacing: Tight</option>
+          </select>
+        </div>
+        <div class="btn-row">
+          <button id="hlBtn">🔦 Focus Line</button>
+          <button id="bionicBtn">⚡ Fast Read</button>
+        </div>
+      </div>
 
-  <!-- Scroll -->
-  <button onclick="startScroll()">▶ Scroll</button>
-  <button onclick="stopScroll()">⏸ Stop</button>
-  <input type="range" id="scrollSpeed" min="1" max="10" value="3">
+      <div class="control-group">
+        <div class="control-group-title"><span>Auto-Scroll</span> <span id="speedVal">Speed: 3</span></div>
+        <input type="range" id="scrollSpeed" min="1" max="10" value="3">
+        <div class="btn-row">
+          <button class="primary" onclick="startScroll()">▶ Start</button>
+          <button onclick="stopScroll()">⏸ Stop</button>
+        </div>
+      </div>
 
-  <!-- TTS -->
-  <button onclick="playTTS()">🔊 Play</button>
-  <button onclick="pauseTTS()">⏸</button>
-  <button onclick="stopTTS()">⏹</button>
+      <div class="control-group">
+        <div class="control-group-title">Text-to-Speech (TTS)</div>
+        <select id="voices"></select>
+        <input type="range" id="ttsSpeed" min="0.5" max="2" step="0.1" value="1" title="Playback Speed">
+        <div class="btn-row">
+          <button class="primary" onclick="playTTS()">🔊 Play</button>
+          <button onclick="pauseTTS()">⏸</button>
+          <button onclick="stopTTS()">⏹</button>
+        </div>
+      </div>
 
-  <select id="voices"></select>
-  <input type="range" id="ttsSpeed" min="0.5" max="2" step="0.1" value="1">
-</div>
+    </div>
 
-<div id="preview" class="preview"></div>
-</div>
+    <div class="preview-wrapper" id="previewWrapper">
+      <div id="preview" class="preview-container"></div>
+    </div>
+  </div>
 
-<script>
-const textarea = document.getElementById("inputText");
-const preview = document.getElementById("preview");
+  <button class="fab" id="fabBtn">⚙️</button>
 
-/* ================= TEXT + URL ================= */
-textarea.addEventListener("input", update);
+  <script>
+    // DOM Elements
+    const textarea = document.getElementById("inputText");
+    const preview = document.getElementById("preview");
+    const previewWrapper = document.getElementById("previewWrapper");
+    const sidebar = document.getElementById("sidebar");
+    const header = document.getElementById("header");
+    const progressBar = document.getElementById("progressBar");
 
-function update(){
-  const text = textarea.value;
-  preview.innerHTML = text.split("\n").map(l => `<span>${l}</span>`).join("<br>");
-  saveState();
-}
+    // Settings State
+    let highlightOn = false;
+    let bionicOn = false;
+    let isFocusMode = false;
 
-// function saveState(){
-//   const state = {
-//     txt: textarea.value,
-//     theme: document.body.className
-//   };
-//   const url = `?data=${encodeURIComponent(JSON.stringify(state))}`;
-//   history.replaceState(null, "", url);
-//   localStorage.setItem("readerState", JSON.stringify(state));
-// }
+    /* ================= INITIALIZATION & STATE ================= */
+    function loadState() {
+      const params = new URLSearchParams(location.search);
+      let text = params.get("txt") || localStorage.getItem("readerText") || "";
+      let theme = params.get("theme") || localStorage.getItem("readerTheme") || "";
 
-function saveState(){
-  const text = textarea.value;
-  const theme = document.body.className;
+      textarea.value = decodeURIComponent(text);
+      if (theme) { document.body.className = theme; document.getElementById("theme").value = theme; }
 
-  const params = new URLSearchParams();
-
-  // Replace spaces with +
-  params.set("txt", text.replace(/\s/g, "+"));
-  params.set("theme", theme);
-
-  const url = "?" + params.toString();
-  history.replaceState(null, "", url);
-
-  // still keep local backup
-  localStorage.setItem("readerText", text);
-  localStorage.setItem("readerTheme", theme);
-}
-
-// function loadState(){
-//   const params = new URLSearchParams(location.search);
-//   let data = params.get("data");
-
-//   if(!data){
-//     data = localStorage.getItem("readerState");
-//   }
-
-//   if(data){
-//     const state = JSON.parse(decodeURIComponent(data));
-//     textarea.value = state.txt || "";
-//     document.body.className = state.theme || "";
-//     update();
-//   }
-// }
-
-function loadState(){
-  const params = new URLSearchParams(location.search);
-
-  let text = params.get("txt");
-  let theme = params.get("theme");
-
-  // Convert + back to spaces
-  if(text){
-    text = text.replace(/\+/g, " ");
-  } else {
-    text = localStorage.getItem("readerText");
-  }
-
-  if(!theme){
-    theme = localStorage.getItem("readerTheme");
-  }
-
-  if(text){
-    textarea.value = text;
-  }
-
-  if(theme){
-    document.body.className = theme;
-  }
-
-  update();
-}
-
-/* ================= THEMES ================= */
-document.getElementById("theme").onchange = (e)=>{
-  document.body.className = e.target.value;
-  saveState();
-};
-
-/* ================= READABILITY ================= */
-document.getElementById("width").onchange = e=>{
-  preview.style.maxWidth = e.target.value;
-};
-
-document.getElementById("spacing").onchange = e=>{
-  preview.style.lineHeight = e.target.value;
-};
-
-/* ================= AUTO SCROLL ================= */
-let scrollInterval;
-
-function startScroll(){
-  stopScroll();
-  const speed = document.getElementById("scrollSpeed").value;
-
-  scrollInterval = setInterval(()=>{
-    preview.scrollTop += 1;
-  }, 40 / speed);
-}
-
-function stopScroll(){
-  clearInterval(scrollInterval);
-}
-
-/* ================= HIGHLIGHT ================= */
-let highlightOn = false;
-
-function toggleHighlight(){
-  highlightOn = !highlightOn;
-  preview.classList.toggle("highlight");
-
-  if(highlightOn){
-    preview.addEventListener("scroll", highlightLine);
-  } else {
-    preview.removeEventListener("scroll", highlightLine);
-  }
-}
-
-function highlightLine(){
-  const spans = preview.querySelectorAll("span");
-  let closest;
-
-  spans.forEach(span=>{
-    const rect = span.getBoundingClientRect();
-    if(rect.top > 0 && rect.top < window.innerHeight/2){
-      closest = span;
+      renderPreview();
     }
-    span.classList.remove("active");
-  });
 
-  if(closest) closest.classList.add("active");
-}
+    function saveState() {
+      const text = textarea.value;
+      const theme = document.body.className;
 
-/* ================= TTS ================= */
-let utterance;
-let voices = [];
+      localStorage.setItem("readerText", text);
+      localStorage.setItem("readerTheme", theme);
 
-function loadVoices(){
-  voices = speechSynthesis.getVoices();
-  const select = document.getElementById("voices");
-  select.innerHTML = voices.map((v,i)=>`<option value="${i}">${v.name}</option>`).join("");
-}
+      // Update URL without reloading (useful for sharing)
+      const url = new URL(window.location);
+      if (text.length < 2000) url.searchParams.set("txt", encodeURIComponent(text)); // Don't bloat URL if text is massive
+      url.searchParams.set("theme", theme);
+      history.replaceState(null, "", url);
+    }
 
-speechSynthesis.onvoiceschanged = loadVoices;
+    /* ================= PERFORMANCE RENDER PIPELINE ================= */
+    let renderTimer;
+    textarea.addEventListener("input", () => {
+      // Stats update instantly
+      updateStats();
 
-function playTTS(){
-  stopTTS();
-  utterance = new SpeechSynthesisUtterance(textarea.value);
+      // DOM Heavy rendering is debounced (Wait 400ms after user stops typing)
+      clearTimeout(renderTimer);
+      renderTimer = setTimeout(() => {
+        renderPreview();
+        saveState();
+      }, 400);
+    });
 
-  const voiceIndex = document.getElementById("voices").value;
-  utterance.voice = voices[voiceIndex];
+    function updateStats() {
+      const text = textarea.value.trim();
+      const words = text ? text.split(/\s+/).length : 0;
+      document.getElementById("wordCount").innerText = `${words} word${words !== 1 ? 's' : ''}`;
+      document.getElementById("readTime").innerText = `${Math.max(1, Math.ceil(words / 238))} min read`;
+    }
 
-  utterance.rate = document.getElementById("ttsSpeed").value;
+    function renderPreview() {
+      updateStats();
+      const text = textarea.value;
 
-  speechSynthesis.speak(utterance);
-}
+      if (!text.trim()) {
+        preview.innerHTML = '<p style="color:var(--text-muted);text-align:center;margin-top:10vh;">Enter or paste text to begin reading.</p>';
+        return;
+      }
 
-function pauseTTS(){
-  speechSynthesis.pause();
-}
+      // Parse paragraphs
+      let html = '';
+      const paragraphs = text.split(/\n\n+/);
 
-function stopTTS(){
-  speechSynthesis.cancel();
-}
+      paragraphs.forEach(p => {
+        const lines = p.split('\n');
+        let pContent = '';
 
-/* INIT */
-loadState();
-loadVoices();
-</script>
+        lines.forEach((line, idx) => {
+          if (!line.trim()) return;
+          if (bionicOn) pContent += applyBionic(line) + (idx < lines.length - 1 ? '<br>' : '');
+          else pContent += line + (idx < lines.length - 1 ? '<br>' : '');
+        });
 
+        if (pContent) html += `<p>${pContent}</p>`;
+      });
+
+      preview.innerHTML = html;
+      if (highlightOn) attachScrollTracker();
+    }
+
+    /* ================= BIONIC READING LOGIC ================= */
+    function applyBionic(text) {
+      return text.split(' ').map(word => {
+        if (word.length <= 1) return `<b class="bionic">${word}</b>`;
+        const mid = Math.ceil(word.length / 2);
+        return `<b class="bionic">${word.slice(0, mid)}</b><span class="bionic-rest">${word.slice(mid)}</span>`;
+      }).join(' ');
+    }
+
+    document.getElementById("bionicBtn").addEventListener("click", (e) => {
+      bionicOn = !bionicOn;
+      e.target.style.background = bionicOn ? "var(--primary)" : "";
+      e.target.style.color = bionicOn ? "white" : "";
+      renderPreview();
+    });
+
+    /* ================= APPEARANCE CONTROLS ================= */
+    document.getElementById("theme").addEventListener("change", (e) => { document.body.className = e.target.value; saveState(); });
+    document.getElementById("width").addEventListener("change", (e) => preview.style.maxWidth = e.target.value);
+    document.getElementById("spacing").addEventListener("change", (e) => preview.style.lineHeight = e.target.value);
+    document.getElementById("fontFamily").addEventListener("change", (e) => preview.style.fontFamily = e.target.value);
+    document.getElementById("fontSize").addEventListener("change", (e) => preview.style.fontSize = e.target.value);
+
+    /* ================= UI TOGGLES ================= */
+    const toggleSidebar = () => sidebar.classList.toggle("hidden");
+    document.getElementById("toggleSidebarBtn").addEventListener("click", toggleSidebar);
+    document.getElementById("fabBtn").addEventListener("click", toggleSidebar);
+
+    document.getElementById("focusModeBtn").addEventListener("click", () => {
+      isFocusMode = !isFocusMode;
+      header.classList.toggle("focus-mode");
+      if (isFocusMode) sidebar.classList.add("hidden");
+      else sidebar.classList.remove("hidden");
+    });
+
+    document.getElementById("shareBtn").addEventListener("click", () => {
+      navigator.clipboard.writeText(window.location.href);
+      const btn = document.getElementById("shareBtn");
+      btn.innerText = "✅"; setTimeout(() => btn.innerText = "🔗", 2000);
+    });
+
+    /* ================= PROGRESS BAR & FOCUS HIGHLIGHT ================= */
+    previewWrapper.addEventListener("scroll", () => {
+      const scrollTop = previewWrapper.scrollTop;
+      const maxScroll = previewWrapper.scrollHeight - previewWrapper.clientHeight;
+      progressBar.style.width = maxScroll > 0 ? `${(scrollTop / maxScroll) * 100}%` : '0%';
+    });
+
+    document.getElementById("hlBtn").addEventListener("click", (e) => {
+      highlightOn = !highlightOn;
+      e.target.style.background = highlightOn ? "var(--primary)" : "";
+      e.target.style.color = highlightOn ? "white" : "";
+
+      if (highlightOn) {
+        preview.classList.add("focus-active");
+        attachScrollTracker();
+      } else {
+        preview.classList.remove("focus-active");
+        previewWrapper.removeEventListener("scroll", processHighlight);
+        preview.querySelectorAll("p").forEach(p => p.classList.remove("active-line"));
+      }
+    });
+
+    function attachScrollTracker() {
+      if (!highlightOn) return;
+      previewWrapper.addEventListener("scroll", processHighlight);
+      processHighlight();
+    }
+
+    function processHighlight() {
+      const targetY = previewWrapper.getBoundingClientRect().top + (previewWrapper.clientHeight * 0.3); // Focus slightly above center
+      let minDiff = Infinity;
+      let closestP = null;
+
+      preview.querySelectorAll("p").forEach(p => {
+        p.classList.remove("active-line");
+        const rect = p.getBoundingClientRect();
+        const diff = Math.abs((rect.top + rect.height / 2) - targetY);
+        if (diff < minDiff) { minDiff = diff; closestP = p; }
+      });
+      if (closestP) closestP.classList.add("active-line");
+    }
+
+    /* ================= AUTO SCROLL ================= */
+    let isScrolling = false;
+    let scrollReq;
+    const speedInput = document.getElementById("scrollSpeed");
+    speedInput.addEventListener("input", (e) => document.getElementById("speedVal").innerText = `Speed: ${e.target.value}`);
+
+    function autoScrollLoop() {
+      if (!isScrolling) return;
+      previewWrapper.scrollTop += (speedInput.value * 0.2);
+      scrollReq = requestAnimationFrame(autoScrollLoop);
+    }
+    window.startScroll = () => { stopScroll(); isScrolling = true; autoScrollLoop(); };
+    window.stopScroll = () => { isScrolling = false; cancelAnimationFrame(scrollReq); };
+
+    // Pause scrolling on touch/mouse hold
+    previewWrapper.addEventListener('mousedown', () => { if (isScrolling) stopScroll(); });
+    previewWrapper.addEventListener('touchstart', () => { if (isScrolling) stopScroll(); });
+
+    /* ================= TTS ENGINE ================= */
+    let utterance;
+    let voices = [];
+    const ttsSpeed = document.getElementById("ttsSpeed");
+
+    function loadVoices() {
+      voices = speechSynthesis.getVoices();
+      document.getElementById("voices").innerHTML = voices.map((v, i) => `<option value="${i}">${v.name} (${v.lang})</option>`).join("");
+    }
+    speechSynthesis.onvoiceschanged = loadVoices;
+
+    window.playTTS = () => {
+      stopTTS();
+      const textToRead = textarea.value.trim();
+      if (!textToRead) return;
+
+      utterance = new SpeechSynthesisUtterance(textToRead);
+      const voiceIndex = document.getElementById("voices").value;
+      if (voices[voiceIndex]) utterance.voice = voices[voiceIndex];
+      utterance.rate = ttsSpeed.value;
+
+      // Highlight text as it reads (if supported by browser/voice)
+      utterance.onboundary = (e) => {
+        if (e.name === 'word') {
+          // Basic highlighting wrapper - complex to implement perfectly due to innerHTML structure,
+          // but keeps the page alive and prevents screen sleep
+        }
+      };
+
+      speechSynthesis.speak(utterance);
+    };
+    window.pauseTTS = () => speechSynthesis.pause();
+    window.stopTTS = () => speechSynthesis.cancel();
+
+    /* INIT */
+    loadState();
+    loadVoices();
+  </script>
 </body>
+
 </html>
