@@ -1,77 +1,59 @@
-QR Code Scanner & Generator
+# QR Code Scanner & Generator (QR-SnG)
 
-# QR Code Scanner and Generator Browser Extension
+A high-performance, professional-grade browser extension designed for seamless QR code creation and extraction. Built with a focus on modern UI/UX, privacy, and the ability to handle complex web elements like Canvas and SVG-based QR codes that traditional scanners fail to recognize.
 
-This Browser extension allows users to easily generate and scan QR codes directly from their browser. It provides a simple, user-friendly interface for quickly scanning QR codes using your camera or from images and generating QR codes from text or selected content like URLs, images, audio, and videos.
+## Overview
 
-## Features
+**QR-SnG** is more than a simple barcode reader; it is a comprehensive toolkit for managing digital data. Whether you need to generate a high-quality vector QR code for a business card or extract data from a stubborn CSS-styled QR code on a webpage, this extension provides a robust, Manifest V3-compliant solution.
 
-- **QR Code Scanner**:
-  - Scan QR codes from images.
-  - Scan QR codes using your device's camera.
-  - Scan QR codes from website.
-- **QR Code Generator**:
-  - Generate QR codes from text, URLs, or any custom content.
-  - Generate QR codes from selected text, image, video, or audio URLs via a right-click context menu.
-- **Cross-Browser Compatibility**: Works seamlessly on both Google Chrome and Mozilla Firefox browsers.
-- **Context Menu Integration**: Easily generate QR codes for selected text, image, video, or audio URLs directly from the right-click menu.
-- **Easy-to-Use Interface**: Simple and intuitive UI for both scanning and generating QR codes.
+---
 
-## Installation
+## Key Features
 
-### For Google Chrome
+### 🔍 Advanced Scanning Capabilities
 
-1. Go to the [Chrome Web Store](https://chrome.google.com/webstore) and search for "QR Code Scanner and Generator" or click [here](#) to go directly to the extension page.
-2. Click the **Add to Chrome** button.
-3. Confirm by clicking **Add Extension** in the popup.
-4. Once installed, you will see the extension icon in the toolbar.
+- **Dynamic Snipping Tool:** A custom-built "On-Screen" selection tool that allows you to click and drag a box over any part of a webpage. This captures and decodes QR codes rendered in `<canvas>`, `<svg>`, or complex CSS backgrounds that cannot be downloaded as standard images.
+  > **Note:** This Feature currently available on chrome version
+- **jsQR Integration:** Utilizes the synchronous `jsQR` engine for 100% Manifest V3 CSP compliance. No external web workers are required, ensuring maximum security and performance.
+- **Multi-Input Support:** Scan QR codes via file upload, standard right-click context menus, or by simply dragging and dropping an image file anywhere into the side panel.
+- **Smart Parser:** Automatically detects the data type of scanned codes (Wi-Fi, vCard, URL, etc.) and presents a formatted, interactive UI rather than raw text.
 
-### For Mozilla Firefox
+### 🎨 Professional QR Generation
 
-1. Go to the [Firefox Add-ons website](https://addons.mozilla.org/) and search for "QR Code Scanner and Generator" or click [here](#) to go directly to the extension page.
-2. Click the **Add to Firefox** button.
-3. Confirm by clicking **Add** in the popup.
-4. Once installed, the extension icon will appear in the browser toolbar.
+- **Smart Templates:** Dedicated forms for generating specialized QR codes:
+  - **Wi-Fi:** SSID, Password, and Encryption type.
+  - **vCard:** Full contact details (Name, Phone, Email).
+  - **Communication:** Email (Subject/Body) and SMS/WhatsApp integration.
+  - **Geolocation:** Latitude/Longitude with a built-in **City Search** (OpenStreetMap API) to auto-fill coordinates.
+- **Deep Customization:**
+  - **Shape Control:** Customize "Data Dots" and "Position Eyes" independently (Squares, Circles, Rounded, or Liquid styles).
+  - **Visual Aesthetics:** Support for solid colors, linear gradients, and transparent backgrounds.
+  - **Contrast Validator:** Real-time scannability check that warns you if your color choices provide insufficient contrast for physical scanners.
+- **Large Text Hosting:** A unique feature that handles massive text payloads by hosting the content on a secure web viewer and generating a lightweight, scannable "Compressed Link" QR code instead.
 
-## Usage
+### 📂 History & Management
 
-### Scanning QR Codes
+- **Intelligent History Log:** Saves your recent scans and generations locally.
+- **Favorites & Recycle Bin:** Organize your codes with a "Starred" system. Deleted items move to a Recycle Bin with a 30-day auto-purge cycle, similar to modern OS behavior.
+- **Smart File Naming:** Automatically names downloaded files based on their content (e.g., `QR-SnG_github.com-my-project.png`), truncated to 50 characters for easy recognition.
 
-1. Click the extension icon in the toolbar to open the scanner.
-2. Select an image file from your computer that contains a QR code or click the camera icon to scan a QR code using your device's camera.
-3. The extension will automatically decode the QR code and display its content (URL, text, etc.).
-4. If the content is a URL, you can directly click on it to open it in a new tab.
+---
 
-### Scanning QR Codes via Context Menu
+## Advanced Technology
 
-1. Right click on the QR code image present in the website you want to scan
-2. Then Context Menu Options, Select Scan QR Code for selected image
-3. It will automatically open Sidebar with decoded QR code
+### URL Shortening & Fallback
 
-### Generating QR Codes
+The extension integrates the TinyURL API to ensure that long, complex URLs result in simple, high-density QR codes that are easier for mobile devices to scan. It features a dual-API fallback system to ensure the service remains available even if a specific API key reaches its limit.
 
-1. Click the extension icon in the toolbar to open the QR code generator.
-2. Enter the content (text, URL, etc.) you want to encode in the text box.
-3. Click **Generate QR Code**.
-4. The generated QR code will appear on the screen.
-5. You can click to download the QR code image or copy it to the clipboard.
+### Cross-Browser Compatibility
 
-### Generating QR Codes via Context Menu
+While optimized for the **Chrome Side Panel API**, the architecture is designed with cross-browser standards in mind:
 
-1. **Text**: Select any text on a webpage, right-click, and select **Generate QR Code** from the context menu to instantly create a QR code for that text.
-2. **Image**: Right-click on an image, select **Generate QR Code**, and the extension will generate a QR code linking to the image.
-3. **Video URL**: Right-click on a video URL, and select **Generate QR Code** to create a QR code for that URL.
-4. **Audio URL**: Right-click on an audio URL and select **Generate QR Code** to create a QR code for that audio file.
+- **Chrome Version:** Fully utilizes Manifest V3, Side Panel API, and Context Menus.
+- **Firefox Version:** Implemented using the WebExtensions API. In Firefox, the interface operates via the `sidebarAction` or a dedicated options page, ensuring that Firefox users enjoy the same "Side-by-Side" experience without hardware-dependent logic like webcams.
 
-## Features Breakdown
+### Privacy & Performance
 
-- **Scan QR codes from images**: Upload or drag an image with a QR code into the extension to decode it.
-- **Scan QR codes from your camera**: Use your device's camera to scan QR codes in real time.
-- **Generate QR codes from any content**: Enter text, URL, or any other data to generate a QR code.
-- **Context Menu Integration**: Right-click on selected text, image, video, or audio URLs to generate a QR code.
-- **Cross-platform support**: The extension works on bothBrowser browsers.
-
-## License
-
-This extension is open-source and distributed under the MIT License.
-
+- **No Camera Required:** Unlike legacy scanners, this tool requires zero camera permissions, making it ideal for PCs and privacy-conscious users.
+- **Dark Mode:** A fully native Dark Mode toggle that respects user preferences and reduces eye strain.
+- **Local Processing:** All QR decoding and matrix generation happen locally on your machine; your data is never sent to a third-party server for processing (except optional URL shortening).

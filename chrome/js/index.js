@@ -1,4 +1,3 @@
-import QrScanner from './qr-scanner.min.js';
 
 // --- DOM ELEMENTS ---
 const dndOverlay = document.getElementById('dnd-overlay');
@@ -8,6 +7,7 @@ const downloadbtn = document.getElementById('download-btn');
 const clipboardbtn = document.getElementById('clip-btn');
 
 const input = document.querySelector('#img-in');
+const scanPageBtn = document.getElementById('scan-page-btn');
 const outqrtxt = document.getElementById('out-qr-txt');
 const scanPreview = document.getElementById('scan-preview');
 const copybtn = document.getElementById('copy-btn');
@@ -323,21 +323,59 @@ function parseScanResult(txt) {
   return `<strong>Text Result</strong><br> ${txt}`;
 }
 
+// --- Scan QR using jsQR (No worker, CSP safe, works everywhere) ---
+
 function scanQR(file) {
   outqrtxt.innerHTML = "<i>Scanning...</i>";
   scanPreview.src = URL.createObjectURL(file);
   scanPreview.style.display = 'block';
+  scanActions.style.display = "none";
 
-  QrScanner.scanImage(file, { returnDetailedScanResult: true })
-    .then(res => {
-      outqrtxt.innerHTML = parseScanResult(res.data);
-      outqrtxt.setAttribute('data-raw', res.data);
-      saveHistory('Scanned', res.data);
-    })
-    .catch(err => {
-      outqrtxt.innerHTML = '<span style="color:red">No QR code found in the image.</span>';
-      scanActions.style.display = 'none';
-    });
+  const reader = new FileReader();
+
+  reader.onload = (readerEvent) => {
+    const img = new Image();
+
+    img.onload = () => {
+      // Create a hidden canvas to extract image data (required by jsQR)
+      const canvas = document.createElement("canvas");
+      // willReadFrequently optimizes canvas for heavy read operations
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+
+      canvas.width = img.width;
+      canvas.height = img.height;
+      context.drawImage(img, 0, 0, img.width, img.height);
+
+      try {
+        const imageData = context.getImageData(0, 0, img.width, img.height);
+
+        // Pass image data to jsQR
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: "attemptBoth", // Tries standard and inverted colors
+        });
+
+        if (code && code.data) {
+          outqrtxt.innerHTML = parseScanResult(code.data);
+          outqrtxt.setAttribute('data-raw', code.data);
+          saveHistory('Scanned', code.data);
+        } else {
+          outqrtxt.innerHTML = '<span style="color:red">No QR code found in the image.</span>';
+          scanActions.style.display = 'none';
+        }
+      } catch (err) {
+        console.error("jsQR Error:", err);
+        outqrtxt.innerHTML = '<span style="color:red">Error processing image format.</span>';
+      }
+    };
+
+    img.src = readerEvent.target.result;
+  };
+
+  reader.onerror = () => {
+    outqrtxt.innerHTML = '<span style="color:red">Failed to read file.</span>';
+  };
+
+  reader.readAsDataURL(file);
 }
 
 input.addEventListener('change', (e) => { if (e.target.files.length > 0) scanQR(e.target.files[0]); });
@@ -357,26 +395,7 @@ clipboardbtn.addEventListener('click', () => {
   });
 });
 
-// --- DRAG & DROP ---
-// window.addEventListener('dragover', (e) => { e.preventDefault(); dndOverlay.classList.add('active'); });
-// window.addEventListener('dragleave', (e) => { e.preventDefault(); dndOverlay.classList.remove('active'); });
-// window.addEventListener('drop', (e) => {
-//   e.preventDefault(); dndOverlay.classList.remove('active');
-//   const items = e.dataTransfer.items;
 
-//   if (e.dataTransfer.files.length > 0 && e.dataTransfer.files[0].type.includes('image')) {
-//     document.querySelector('[data-target="tab-scan"]').click();
-//     scanQR(e.dataTransfer.files[0]);
-//   } else {
-//     e.dataTransfer.items[0].getAsString(text => {
-//       if (text) {
-//         document.querySelector('[data-target="tab-gen"]').click();
-//         templateSelector.value = 'text'; templateSelector.dispatchEvent(new Event('change'));
-//         document.getElementById('qr-txt').value = text; generateQr();
-//       }
-//     });
-//   }
-// });
 
 // --- DRAG & DROP (Flicker Fix Applied) ---
 let dragCounter = 0;
@@ -528,6 +547,15 @@ function renderHistory() {
 
 loadHistory();
 
+if (scanPageBtn) {
+  scanPageBtn.addEventListener('click', () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: "start_selection" }).catch(err => {
+        alert("Please refresh the webpage to enable the screen scanner.");
+      });
+    });
+  });
+}
 
 // --- CONTEXT MENUS STORAGE LISTENERS ---
 if (chrome && chrome.storage && chrome.storage.local) {
@@ -557,6 +585,44 @@ if (chrome && chrome.storage && chrome.storage.local) {
         fetch(changes["qrimageurl"].newValue).then(r => r.blob()).then(scanQR);
         chrome.storage.local.remove("qrimageurl");
       }
+    }
+
+    if (changes["qrAreaScan"] && changes["qrAreaScan"].newValue) {
+      const data = changes["qrAreaScan"].newValue;
+      document.querySelector('[data-target="tab-scan"]').click();
+      outqrtxt.innerHTML = "<i>Cropping & Scanning...</i>";
+
+      const img = new Image();
+      img.onload = () => {
+        // Create canvas exactly the size of the user's selection box
+        const canvas = document.createElement("canvas");
+        canvas.width = data.rect.w;
+        canvas.height = data.rect.h;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+        // Draw only the cropped portion from the full screenshot
+        ctx.drawImage(img, data.rect.x, data.rect.y, data.rect.w, data.rect.h, 0, 0, data.rect.w, data.rect.h);
+
+        // Show preview of the cropped area
+        scanPreview.src = canvas.toDataURL("image/png");
+        scanPreview.style.display = 'block';
+
+        try {
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "attemptBoth" });
+
+          if (code && code.data) {
+            outqrtxt.innerHTML = parseScanResult(code.data);
+            outqrtxt.setAttribute('data-raw', code.data);
+            saveHistory('Scanned (Screen)', code.data);
+          } else {
+            outqrtxt.innerHTML = '<span style="color:red">No QR found in selected area.</span>';
+          }
+        } catch (e) { outqrtxt.innerHTML = '<span style="color:red">Error scanning area.</span>'; }
+
+        chrome.storage.local.remove("qrAreaScan"); // Clear memory
+      };
+      img.src = data.imgUrl;
     }
   });
 }

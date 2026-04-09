@@ -16,7 +16,6 @@
   "permissions": [
     "activeTab",
     "contextMenus",
-    "sidePanel",
     "storage",
     "clipboardWrite",
     "clipboardRead"
@@ -31,15 +30,14 @@
     }
   },
 
-  "side_panel": {
-    "icons": {
-      "48": "icons/48.png"
-    },
-    "default_path": "index.html"
+  "sidebar_action": {
+    "default_icon": "icons/48.png",
+    "default_title": "QR Code Scanner & Generator",
+    "default_panel": "index.html"
   },
 
   "background": {
-    "service_worker": "js/background.js"
+    "scripts": ["js/background.js"]
   },
 
   "content_scripts": [
@@ -47,5 +45,18 @@
       "matches": ["<all_urls>"],
       "js": ["js/content.js"]
     }
-  ]
+  ],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self';"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "qr-sng@pro-bandey.com",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
 }

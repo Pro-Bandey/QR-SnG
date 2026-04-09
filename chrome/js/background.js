@@ -24,6 +24,11 @@ chrome.runtime.onInstalled.addListener(() => {
     title: "Scan QR Code from image",
     contexts: ["image"],
   });
+  chrome.contextMenus.create({
+    id: "scanPageArea",
+    title: "Select & Scan QR on page",
+    contexts: ["page", "image", "link"],
+  });
   chrome.sidePanel
     .setPanelBehavior({ openPanelOnActionClick: true })
     .catch(console.error);
@@ -32,6 +37,13 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   let data = {};
   if (info.menuItemId === "openSidePanel") data.qrurl = tab.url;
+  else if (info.menuItemId === "scanPageArea") {
+    chrome.sidePanel.open({ windowId: tab.windowId }).then(() => {
+      chrome.tabs
+        .sendMessage(tab.id, { action: "start_selection" })
+        .catch(() => console.log("Tab refresh needed"));
+    });
+  }
   else if (info.menuItemId === "openSidePanel1")
     data.qrurl = info.selectionText;
   else if (info.menuItemId === "openSidePanel2") data.qrurl = info.linkUrl;
@@ -43,25 +55,40 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       .catch((err) => console.error(err));
   });
 });
-
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "capture_area") {
+    chrome.tabs.captureVisibleTab(
+      sender.tab.windowId,
+      { format: "png" },
+      (dataUrl) => {
+        chrome.storage.local.set({
+          qrAreaScan: { imgUrl: dataUrl, rect: request.rect },
+        });
+      },
+    );
+  }
+});
 
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
 
-
 const extInstaUninsta = typeof browser !== "undefined" ? browser : chrome;
 extInstaUninsta.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {
     extInstaUninsta.tabs.create({
-      url: "intro.html"
+      url: "intro.html",
     });
   }
-  extInstaUninsta.storage.local.set({ bannerStartTime: Date.now(), bannerDismissed: false });
+  extInstaUninsta.storage.local.set({
+    bannerStartTime: Date.now(),
+    bannerDismissed: false,
+  });
 });
 extInstaUninsta.runtime.onStartup.addListener(() => {
-  extInstaUninsta.storage.local.set({ bannerStartTime: Date.now(), bannerDismissed: false });
+  extInstaUninsta.storage.local.set({
+    bannerStartTime: Date.now(),
+    bannerDismissed: false,
+  });
 });
-extInstaUninsta.runtime.setUninstallURL(
-  "https://github.com/pro-bandey/QR-SnG"
-);
+extInstaUninsta.runtime.setUninstallURL("https://github.com/pro-bandey/QR-SnG");
