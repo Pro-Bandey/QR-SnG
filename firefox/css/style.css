@@ -438,7 +438,7 @@
     }
 
     .hist-tab.active {
-        color: white;
+        color: var(--text-main);
         border-bottom-color: var(--primary);
     }
 
