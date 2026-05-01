@@ -1,6 +1,5 @@
 # QR Code Scanner & Generator (QR-SnG)
-
-A high-performance, professional-grade browser extension designed for seamless QR code creation and extraction. Built with a focus on modern UI/UX, privacy, and the ability to handle complex web elements like Canvas and SVG-based QR codes that traditional scanners fail to recognize.
+![Logo](chrome/icons/128.png)  A high-performance, professional-grade browser extension designed for seamless QR code creation and extraction. Built with a focus on modern UI/UX, privacy, and the ability to handle complex web elements like Canvas and SVG-based QR codes that traditional scanners fail to recognize.
 
 ## Overview
 

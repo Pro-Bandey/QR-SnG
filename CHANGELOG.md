@@ -1,3 +1,23 @@
+#### **The Fixing & Social Version (v3.2.0 — v3.5.0)**
+
+_Focus: Modern aesthetics, social integration, and cross-browser stability._
+
+- **What’s New:**
+  - **Modern QR Engine Upgrade:** Migrated from legacy to the powerful library.
+  - **Full Emoji Support:** Natively supports all modern emojis (surrogate pairs) and UTF-8 characters without crashing or rendering invalid codes.
+  - **Dynamic Center Logos:** Added a logo-branding system. Users can now add images to the center of QR codes via local upload, image URL, or a new "Quick-Preset" gallery.
+  - **Auto-Branding Templates:** QR codes now automatically apply the correct logo when a specific template is selected (e.g., selecting the WhatsApp template instantly applies the WhatsApp logo).
+  - **Advanced Styling Suite:** Expanded customization to include "Extra-Rounded," "Classy," and "Liquid" dot shapes, plus independent styling for the Eye Frame and Eye Center.
+  - **Expanded Social Templates:** New specialized templates for WhatsApp (with pre-filled messages), Telegram (@username support), FB Messenger, Instagram, X (Twitter), and YouTube.
+- **What’s Fixed:**
+  - **CORS Image Fetching:** Implemented a background script "Proxy Fetcher" to bypass Same-Origin Policy (CORS) blocks when scanning images directly from external websites.
+  - **Secure Download Logic:** Replaced the library’s internal download system with a custom "Blob-to-Anchor" method to bypass Chrome and Firefox Extension security restrictions.
+  - **Snipping Tool Sidebar Fix:** Resolved an issue where the on-page scanner wouldn't trigger from the sidebar by targeting the `lastFocusedWindow` instead of the sidebar window itself.
+  - **Logo Override Logic:** Fixed a bug where local file uploads weren't cleared when switching between different template logos.
+  - **Firefox Sidebar Compatibility:** Standardized `extApi` and sidebar toggles to ensure the snipping tool and context menus work perfectly in Firefox.
+- **What’s Removed:**
+  - **Legacy Library:** Removed legacy QR library and over 150 lines of manual HTML5 Canvas drawing code, significantly reducing the extension's file size and complexity.
+
 #### **The Master Version (v3.1.0 — v3.1.5)**
 
 _Focus: Ultimate utility and "Scan Anywhere" technology._

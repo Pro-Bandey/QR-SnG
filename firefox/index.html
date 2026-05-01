@@ -15,7 +15,7 @@
   <div class="header">
     <h1>QR Code Scanner & Generator</h1>
     <button class="theme-toggle" id="theme-toggle" title="Toggle Theme Mode">
-      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
+      <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
         <path
           d="M565-395q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35Zm-226.5 56.5Q280-397 280-480t58.5-141.5Q397-680 480-680t141.5 58.5Q680-563 680-480t-58.5 141.5Q563-280 480-280t-141.5-58.5ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Zm326-268Z" />
       </svg>
@@ -23,20 +23,23 @@
   </div>
 
   <div class="header-tabs">
-    <button class="tab-btn active" data-target="tab-gen">Generate</button>
-    <button class="tab-btn" data-target="tab-scan">Scan</button>
-    <button class="tab-btn" data-target="tab-history">History</button>
+    <button title="Generator Tab" class="tab-btn active" data-target="tab-gen">Generate</button>
+    <button title="Scanner Tab" class="tab-btn" data-target="tab-scan">Scan</button>
+    <button title="History Tab" class="tab-btn" data-target="tab-history">History</button>
   </div>
 
   <!-- GENERATOR TAB -->
   <div id="tab-gen" class="tab-content active">
     <div class="container">
-      <select id="template-selector">
+      <select title="Select Template" id="template-selector">
         <option value="text">Text / URL</option>
         <option value="wifi">Wi-Fi Network</option>
         <option value="vcard">Contact (vCard)</option>
         <option value="email">Email Address</option>
-        <option value="sms">SMS / WhatsApp</option>
+        <option value="sms">SMS Message</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="telegram">Telegram</option>
+        <option value="messenger">FB Messenger</option>
         <option value="geo">Geo-Location</option>
       </select>
 
@@ -89,6 +92,19 @@
         <input id="sms-phone" type="text" placeholder="Phone Number with Country Code" class="input" />
         <textarea id="sms-msg" placeholder="Message"></textarea>
       </div>
+      <div id="tpl-whatsapp" class="template-section">
+        <input id="wa-phone" type="text" placeholder="Phone Number with Country Code (e.g. 1234567890)" class="input" />
+        <textarea id="wa-msg" placeholder="Pre-filled Message (Optional)"></textarea>
+      </div>
+
+      <div id="tpl-telegram" class="template-section">
+        <input id="tg-user" type="text" placeholder="Username (e.g. @your_username)" class="input" />
+        <textarea id="tg-msg" placeholder="Pre-filled Message (Optional)"></textarea>
+      </div>
+
+      <div id="tpl-messenger" class="template-section">
+        <input id="fb-user" type="text" placeholder="Facebook Username or Page ID" class="input" />
+      </div>
 
       <div id="tpl-geo" class="template-section">
         <div class="input-group">
@@ -107,78 +123,118 @@
         <div class="details-content">
           <div class="row">
             <div class="col">
-              <label>Foreground Color / Gradient</label>
+              <label>Foreground / Gradient</label>
               <div class="row">
-                <input type="color" id="color-dark" value="#000000" />
+                <input type="color" id="color-dark" value="#000000" title="Pick a Color" />
                 <input type="color" id="color-dark-2" value="#000000" title="Optional Gradient End" />
               </div>
             </div>
             <div class="col">
               <label>Background Color</label>
-              <input type="color" id="color-light" value="#ffffff" />
+              <input type="color" id="color-light" value="#ffffff" title="Pick Background Color" />
             </div>
           </div>
 
           <div class="checkbox-row">
             <input type="checkbox" id="trans-bg" />
-            <label for="trans-bg" class="custom-checkbox">
+            <label title="Check To Nake Background Transparent" for="trans-bg" class="custom-checkbox">
               <span class="checkmark"></span>
               Transparent Background
             </label>
           </div>
-          <div id="contrast-warning" class="alert alert-warn"></div>
+          <div id="contrast-warning" class="alert alert-warn" style="display:none;"></div>
+
+          <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;" />
 
           <div class="row">
             <div class="col">
-              <label>Data Dots Shape</label>
-              <select id="qr-shape">
-                <option value="squares">Squares</option>
+              <label>Data Dots</label>
+              <select title=" Select Dots Style" id="qr-shape">
+                <option value="square">Squares</option>
                 <option value="dots">Dots</option>
-                <option value="liquid">Liquid</option>
+                <option value="rounded">Rounded</option>
+                <option value="extra-rounded">Extra Rounded</option>
+                <option value="classy">Classy</option>
+                <option value="classy-rounded">Classy Rounded</option>
               </select>
             </div>
             <div class="col">
-              <label>Eye (Marker) Style</label>
-              <select id="eye-shape">
-                <option value="squares">Standard</option>
-                <option value="rounded">Rounded</option>
-                <option value="circles">Circles</option>
+              <label>Eye Frame</label>
+              <select title="Select Eye Frame Style" id="eye-shape">
+                <option value="square">Square</option>
+                <option value="dot">Dot</option>
+                <option value="extra-rounded">Extra Rounded</option>
               </select>
+            </div>
+            <div class="col">
+              <label>Eye Center</label>
+              <select title="Select Eye Center Style" id="inner-eye-shape">
+                <option value="square">Square</option>
+                <option value="dot">Dot</option>
+              </select>
+            </div>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;" />
+
+          <label title="Auto Selected By Template">Center Logo</label>
+          <div id="logo-presets"
+            style="display:flex; gap:8px; margin-bottom:10px; overflow-x: auto; padding-bottom: 4px;">
+          </div>
+
+          <div class="input-group">
+            <input type="text" id="logo-url" placeholder="Paste logo image URL..." class="input" />
+          </div>
+          <div class="row">
+            <div class="col">
+              <label title="Pick Logo From localStorage" for="logo-input" class="btn-primary" style="color: white;">
+                <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                  <path
+                    d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
+                </svg>
+                Upload Logo
+              </label>
+              <input type="file" id="logo-input" accept="image/*" style="position: absolute; left: -9999px;">
+            </div>
+            <div class="col">
+              <button title="Clear Logo For Simple QR Code" id="clear-logo-btn" class="btn-secondary alt">
+                <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                  <path d="M120-280v-80h560v80H120Zm80-160v-80h560v80H200Zm80-160v-80h560v80H280Z" />
+                </svg>
+                Clear Logo
+              </button>
             </div>
           </div>
         </div>
       </details>
-
       <div class="row">
-        <button id="gen-btn" type="button" class="btn-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-            fill="currentColor">
+        <button title="Generate QR Code" id="gen-btn" type="button" class="btn-primary">
+          <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
             <path
               d="M120-520v-320h320v320H120Zm80-80h160v-160H200v160Zm-80 480v-320h320v320H120Zm80-80h160v-160H200v160Zm320-320v-320h320v320H520Zm80-80h160v-160H600v160Zm160 480v-80h80v80h-80ZM520-360v-80h80v80h-80Zm80 80v-80h80v80h-80Zm-80 80v-80h80v80h-80Zm80 80v-80h80v80h-80Zm80-80v-80h80v80h-80Zm0-160v-80h80v80h-80Zm80 80v-80h80v80h-80Z" />
           </svg>
           Generate QR
         </button>
-        <button id="clip-btn" type="button" class="btn-secondary" title="Paste text from clipboard" style="flex: 0.3;">
+        <button id="clip-btn" type="button" class="btn-secondary" title="Paste Text From Clipboard" style="flex: 0.3;">
 
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-            fill="currentColor">
+          <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
             <path
               d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h167q11-35 43-57.5t70-22.5q40 0 71.5 22.5T594-840h166q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560h-80v120H280v-120h-80v560Zm308.5-571.5Q520-783 520-800t-11.5-28.5Q497-840 480-840t-28.5 11.5Q440-817 440-800t11.5 28.5Q463-760 480-760t28.5-11.5Z" />
           </svg></button>
       </div>
 
-      <div id="qrcode"><span style="color: #9CA3AF; font-size: 13px;">Output preview</span></div>
+      <div id="qrcode"><span title="Empty Output Preview" style="color: #9CA3AF; font-size: 13px;">Output preview</span>
+      </div>
 
       <div class="row">
-        <select id="download-format">
+        <select title="Select Output Type" id="download-format">
           <option value="png">PNG</option>
           <option value="jpg">JPG</option>
           <option value="svg">SVG</option>
         </select>
-        <button id="download-btn" type="button" class="btn-secondary alt">
 
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-            fill="currentColor">
+        <button title="Download Output QR Code" id="download-btn" type="button" class="btn-secondary alt">
+          <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
             <path
               d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
           </svg>
@@ -190,43 +246,38 @@
   <!-- SCANNER TAB -->
   <div id="tab-scan" class="tab-content">
     <div class="container">
-      <!-- <button id="scan-page-btn" type="button" class="btn-secondary alt">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+      <button title="Select Area on Webpage To Scan" id="scan-page-btn" type="button" class="btn-secondary alt">
+        <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
           <path
             d="M80-680v-200h200v80H160v120H80Zm0 600v-200h80v120h120v80H80Zm600 0v-80h120v-120h80v200H680Zm120-600v-120H680v-80h200v200h-80ZM700-260h60v60h-60v-60Zm0-120h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60-60h60v60h-60v-60Zm120-120h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60-60h60v60h-60v-60Zm240-320v240H520v-240h240ZM440-440v240H200v-240h240Zm0-320v240H200v-240h240Zm-60 500v-120H260v120h120Zm0-320v-120H260v120h120Zm320 0v-120H580v120h120Z" />
         </svg>
-        Select Area on Webpage To Scan
-      </button> -->
+        Onpage Scan
+      </button>
+
       <h3>Scan QR Image</h3>
       <div style="position: relative; overflow: hidden; display: flex; flex-direction: column;">
-        <label class="btn-primary" for="img-in">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-            fill="currentColor">
+        <label title="Upload QR Code Image From localStorage" class="btn-primary" for="img-in">
+          <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
             <path
               d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
           </svg>
-          Upload QR File</label>
+          Upload QR</label>
         <input id="img-in" type="file" accept="image/*" style="position: absolute; left: -9999px;" />
       </div>
 
-      <!-- <img id="scan-preview" src="" alt="preview" /> -->
+      <img title="Your Given QR Code Image" id="scan-preview" src="" alt="preview" />
 
-      <!-- <img id="scan-preview" crossorigin="anonymous" src="" alt="preview" /> -->
-      <!-- Remove the "crossorigin" argument entirely to prevent data: image blocking constraints -->
-      <img id="scan-preview" src="" alt="preview" />
-
-      <div class="parsed-result" id="out-qr-txt">Scan result will appear here...</div>
+      <div title="Scan Result Will Appear Here..." class="parsed-result" id="out-qr-txt">Result...</div>
 
       <div class="row" id="scan-actions" style="display:none;">
-        <button id="copy-btn" type="button" class="btn-secondary alt">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-            fill="currentColor">
+        <button title="Copy Result Data" id="copy-btn" type="button" class="btn-secondary alt">
+          <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
             <path
               d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z" />
           </svg>
           Copy
         </button>
-        <button id="action-btn" type="button" class="btn-primary">Open Link</button>
+        <button title="Open Link Button" id="action-btn" type="button" class="btn-primary">Open Link</button>
       </div>
     </div>
   </div>
@@ -235,22 +286,22 @@
   <div id="tab-history" class="tab-content">
     <div class="container" style="background: transparent; box-shadow: none; padding: 0;">
       <div class="hist-tabs">
-        <div class="hist-tab active" data-view="all"><svg xmlns="http://www.w3.org/2000/svg" height="20px"
+        <div title="All Previous Items" class="hist-tab active" data-view="all"><svg height="20px"
             viewBox="0 -960 960 960" width="20px" fill="currentColor">
             <path
               d="M294-294v-372h372v372H294Zm72-72h228v-228H366v228ZM216-216v72q-29.7 0-50.85-21.15Q144-186.3 144-216h72Zm-72-78v-72h72v72h-72Zm0-150v-72h72v72h-72Zm0-150v-72h72v72h-72Zm72-150h-72q0-29.7 21.15-50.85Q186.3-816 216-816v72Zm78 600v-72h72v72h-72Zm0-600v-72h72v72h-72Zm150 600v-72h72v72h-72Zm0-600v-72h72v72h-72Zm150 600v-72h72v72h-72Zm0-600v-72h72v72h-72Zm150 600v-72h72q0 30-21.15 51T744-144Zm0-150v-72h72v72h-72Zm0-150v-72h72v72h-72Zm0-150v-72h72v72h-72Zm0-150v-72q29.7 0 50.85 21.15Q816-773.7 816-744h-72Z" />
           </svg>
           All
         </div>
-        <div class="hist-tab" data-view="fav"><svg xmlns="http://www.w3.org/2000/svg" height="16px"
-            viewBox="0 -960 960 960" width="16px" fill="#EA33F7">
+        <div title="Your Favorites Items" class="hist-tab" data-view="fav"><svg height="16px" viewBox="0 -960 960 960"
+            width="16px" fill="#EA33F7">
             <path
               d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
           </svg>
           Favorites
         </div>
-        <div class="hist-tab" data-view="bin">
-          <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#EA3323">
+        <div title="Trashed Items" class="hist-tab" data-view="bin">
+          <svg height="16px" viewBox="0 -960 960 960" width="16px" fill="#EA3323">
             <path
               d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z" />
           </svg>
@@ -258,15 +309,20 @@
         </div>
       </div>
       <div id="empty-bin-row" style="display: none; text-align: right; margin-bottom: 10px;">
-        <button id="empty-bin-btn" class="btn-secondary"
-          style="width:auto; padding: 4px 10px; color: var(--danger); font-size:11px;">Empty Trash Now</button>
+        <button title="Click To Empty Trash Now" id="empty-bin-btn" class="btn-secondary"
+          style="width:auto; padding: 4px 10px; color: var(--danger); font-size:11px;">Empty Trash Now
+        </button>
       </div>
       <div id="history-list" style="max-height: 620px;overflow: hidden auto;"></div>
     </div>
   </div>
-  <script type="text/javascript" src="js/qrcode.min.js"></script>
-  <script type="text/javascript" src="js/jsQR.js"></script>
+
+  <script type="text/javascript" src="js/qrCodeGen.js"></script>
+  <script type="text/javascript" src="js/qrCodeScan.js"></script>
   <script type="module" src="js/index.js"></script>
+
+  <script src="js/toaster.js" type="module"></script>
+
 </body>
 
 </html>

@@ -1,151 +1,307 @@
-
-// --- DOM ELEMENTS ---
-const dndOverlay = document.getElementById('dnd-overlay');
+const dndOverlay = document.getElementById("dnd-overlay");
 const qrcodee = document.getElementById("qrcode");
-const genbtn = document.getElementById('gen-btn');
-const downloadbtn = document.getElementById('download-btn');
-const clipboardbtn = document.getElementById('clip-btn');
+const genbtn = document.getElementById("gen-btn");
+const downloadbtn = document.getElementById("download-btn");
+const clipboardbtn = document.getElementById("clip-btn");
+const input = document.querySelector("#img-in");
+const scanPageBtn = document.getElementById("scan-page-btn");
+const outqrtxt = document.getElementById("out-qr-txt");
+const scanPreview = document.getElementById("scan-preview");
+const copybtn = document.getElementById("copy-btn");
+const actionbtn = document.getElementById("action-btn");
+const scanActions = document.getElementById("scan-actions");
 
-const input = document.querySelector('#img-in');
-const scanPageBtn = document.getElementById('scan-page-btn');
-const outqrtxt = document.getElementById('out-qr-txt');
-const scanPreview = document.getElementById('scan-preview');
-const copybtn = document.getElementById('copy-btn');
-const actionbtn = document.getElementById('action-btn');
+const geoSearchInput = document.getElementById("geo-search");
+const geoLoader = document.getElementById("geo-loader");
+
+const templateSelector = document.getElementById("template-selector");
+const shortenUrlCheck = document.getElementById("shorten-url");
+const compressTextCheck = document.getElementById("compress-text");
+const shortenLoader = document.getElementById("shorten-loader");
+const colorDarkInput = document.getElementById("color-dark");
+const colorDark2Input = document.getElementById("color-dark-2");
+const colorLightInput = document.getElementById("color-light");
+const transBgCheck = document.getElementById("trans-bg");
+const contrastWarning = document.getElementById("contrast-warning");
+const qrShapeInput = document.getElementById("qr-shape");
+const eyeShapeInput = document.getElementById("eye-shape");
+
+const logoUrlInput = document.getElementById("logo-url");
+const logoInput = document.getElementById("logo-input");
+const clearLogoBtn = document.getElementById("clear-logo-btn");
+const presetContainer = document.getElementById("logo-presets");
+
+const downloadFormat = document.getElementById("download-format");
+
+const themeToggle = document.getElementById("theme-toggle");
+
 const actionbtnSvg = {
-  link: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M318-120q-82 0-140-58t-58-140q0-40 15-76t43-64l134-133 56 56-134 134q-17 17-25.5 38.5T200-318q0 49 34.5 83.5T318-200q23 0 45-8.5t39-25.5l133-134 57 57-134 133q-28 28-64 43t-76 15Zm79-220-57-57 223-223 57 57-223 223Zm251-28-56-57 134-133q17-17 25-38t8-44q0-50-34-85t-84-35q-23 0-44.5 8.5T558-726L425-592l-57-56 134-134q28-28 64-43t76-15q82 0 139.5 58T839-641q0 39-14.5 75T782-502L648-368Z"/></svg>',
-  Location: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M536.5-503.5Q560-527 560-560t-23.5-56.5Q513-640 480-640t-56.5 23.5Q400-593 400-560t23.5 56.5Q447-480 480-480t56.5-23.5ZM480-186q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z"/></svg>',
-  sms: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M348.5-531.5Q360-543 360-560t-11.5-28.5Q337-600 320-600t-28.5 11.5Q280-577 280-560t11.5 28.5Q303-520 320-520t28.5-11.5Zm160 0Q520-543 520-560t-11.5-28.5Q497-600 480-600t-28.5 11.5Q440-577 440-560t11.5 28.5Q463-520 480-520t28.5-11.5Zm160 0Q680-543 680-560t-11.5-28.5Q657-600 640-600t-28.5 11.5Q600-577 600-560t11.5 28.5Q623-520 640-520t28.5-11.5ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/></svg>',
-  email: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z"/></svg>'
-}
-const scanActions = document.getElementById('scan-actions');
+  link: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M318-120q-82 0-140-58t-58-140q0-40 15-76t43-64l134-133 56 56-134 134q-17 17-25.5 38.5T200-318q0 49 34.5 83.5T318-200q23 0 45-8.5t39-25.5l133-134 57 57-134 133q-28 28-64 43t-76 15Zm79-220-57-57 223-223 57 57-223 223Zm251-28-56-57 134-133q17-17 25-38t8-44q0-50-34-85t-84-35q-23 0-44.5 8.5T558-726L425-592l-57-56 134-134q28-28 64-43t76-15q82 0 139.5 58T839-641q0 39-14.5 75T782-502L648-368Z"/></svg>',
+  Location: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M536.5-503.5Q560-527 560-560t-23.5-56.5Q513-640 480-640t-56.5 23.5Q400-593 400-560t23.5 56.5Q447-480 480-480t56.5-23.5ZM480-186q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z"/></svg>',
+  sms: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M348.5-531.5Q360-543 360-560t-11.5-28.5Q337-600 320-600t-28.5 11.5Q280-577 280-560t11.5 28.5Q303-520 320-520t28.5-11.5Zm160 0Q520-543 520-560t-11.5-28.5Q497-600 480-600t-28.5 11.5Q440-577 440-560t11.5 28.5Q463-520 480-520t28.5-11.5Zm160 0Q680-543 680-560t-11.5-28.5Q657-600 640-600t-28.5 11.5Q600-577 600-560t11.5 28.5Q623-520 640-520t28.5-11.5ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/></svg>',
+  email: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z"/></svg>',
+};
 
-// Customization
-const templateSelector = document.getElementById('template-selector');
-const shortenUrlCheck = document.getElementById('shorten-url');
-const compressTextCheck = document.getElementById('compress-text');
-const shortenLoader = document.getElementById('shorten-loader');
-const colorDarkInput = document.getElementById('color-dark');
-const colorDark2Input = document.getElementById('color-dark-2');
-const colorLightInput = document.getElementById('color-light');
-const transBgCheck = document.getElementById('trans-bg');
-const contrastWarning = document.getElementById('contrast-warning');
-const qrShapeInput = document.getElementById('qr-shape');
-const eyeShapeInput = document.getElementById('eye-shape');
-const downloadFormat = document.getElementById('download-format');
+const builtInLogos = {
+  whatsapp: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325D366'><path d='M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.029 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z'/></svg>",
+  telegram: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23229ED9'><path d='M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.686c.223-.195-.054-.282-.346-.086l-6.4 4.025-2.76-.86c-.6-.188-.616-.602.126-.893l10.784-4.156c.5-.184.945.105.782 1.011z'/></svg>",
+  email: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23EA4335'><path d='M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/></svg>",
+  wifi: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234F46E5'><path d='M12 3C6.95 3 2.3 5.05-.07 8.16l2.12 2.12C3.84 7.74 7.69 6 12 6s8.16 1.74 9.95 4.28l2.12-2.12C21.7 5.05 17.05 3 12 3zm0 5C8.36 8 5.06 9.5 2.76 12.05l2.12 2.12C6.54 12.3 9.12 11 12 11s5.46 1.3 7.12 3.16l2.12-2.12C18.94 9.5 15.64 8 12 8zm0 5c-1.48 0-2.81.56-3.84 1.48l3.84 3.84 3.84-3.84C14.81 13.56 13.48 13 12 13z'/></svg>",
+  messenger: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300B2FF'><path d='M12 2C6.36 2 1.75 6.13 1.75 11.41c0 2.92 1.39 5.54 3.59 7.33v3.76l3.32-1.83c1.07.3 2.19.46 3.34.46 5.64 0 10.25-4.13 10.25-9.41S17.64 2 12 2zm1.09 12.56l-2.73-2.91-5.32 2.91 5.86-6.22 2.84 2.91 5.19-2.91-5.84 6.22z'/></svg>",
+  sms: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334B7F1'><path d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/></svg>",
+  vcard: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235F6368'><path d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm5 11H7v-1.5c0-1.66 3.33-2.5 5-2.5s5 .84 5 2.5V17z'/></svg>",
+  geo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23EA4335'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'/></svg>",
+  instagram: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23E1306C'><path d='M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z'/></svg>",
+  twitter: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'  fill='%235F6368'><path d='M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z'/></svg>",
+  youtube: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF0000'><path d='M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.5 12 3.5 12 3.5s-7.505 0-9.377.55a3.016 3.016 0 00-2.122 2.136C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.55 9.376.55 9.376.55s7.505 0 9.377-.55a3.016 3.016 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/></svg>",
+};
 
-// Theme & State
-const themeToggle = document.getElementById('theme-toggle');
-let currentQRMatrix = null;
+let currentCenterLogo = null;
 let currentQRSize = 300;
 let lastGeneratedText = "qr-code";
+let dragCounter = 0;
+let historyState = [];
+let currentHistView = "all";
 
-// --- INITIALIZE THEME ---
-if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-  document.body.setAttribute('data-theme', 'dark');
-  themeToggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Zm-10-270Z"/></svg>';
-}
-themeToggle.addEventListener('click', () => {
-  if (document.body.getAttribute('data-theme') === 'dark') {
-    document.body.removeAttribute('data-theme');
-    localStorage.setItem('theme', 'light');
-    themeToggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M565-395q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35Zm-226.5 56.5Q280-397 280-480t58.5-141.5Q397-680 480-680t141.5 58.5Q680-563 680-480t-58.5 141.5Q563-280 480-280t-141.5-58.5ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Zm326-268Z"/></svg>';
+
+presetContainer.innerHTML = "";
+Object.keys(builtInLogos).forEach((key) => {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.title = key.charAt(0).toUpperCase() + key.slice(1);
+  btn.style.cssText = "width:36px; height:36px; padding:4px; border:1px solid var(--border); border-radius:6px; background:var(--surface); cursor:pointer; flex-shrink:0;";
+
+  if (key === "twitter" && document.body.getAttribute("data-theme") === "dark") {
+    btn.innerHTML = `<img src="${builtInLogos[key].replace("%23000000", "%23FFFFFF")}" style="width:100%; height:100%; object-fit:contain;" />`;
   } else {
-    document.body.setAttribute('data-theme', 'dark');
-    localStorage.setItem('theme', 'dark');
-    themeToggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Zm-10-270Z"/></svg>';
+    btn.innerHTML = `<img src="${builtInLogos[key]}" style="width:100%; height:100%; object-fit:contain;" />`;
+  }
+
+  btn.onclick = () => {
+    logoUrlInput.value = "";
+    logoInput.value = "";
+    if (key === "twitter" && document.body.getAttribute("data-theme") === "dark") {
+      currentCenterLogo = builtInLogos[key].replace("%23000000", "%23FFFFFF");
+    } else {
+      currentCenterLogo = builtInLogos[key];
+    }
+    generateQr();
+  };
+  presetContainer.appendChild(btn);
+});
+
+templateSelector.addEventListener("change", (e) => {
+  const tpl = e.target.value;
+  logoUrlInput.value = "";
+  logoInput.value = "";
+  currentCenterLogo = builtInLogos[tpl] || null;
+  generateQr();
+});
+
+logoInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (re) => {
+      currentCenterLogo = re.target.result;
+      logoUrlInput.value = "";
+      generateQr();
+    };
+    reader.readAsDataURL(file);
   }
 });
 
-// --- TABS LOGIC ---
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(btn.getAttribute('data-target')).classList.add('active');
+logoUrlInput.addEventListener("input", (e) => {
+  const val = e.target.value.trim();
+  if (val) {
+    currentCenterLogo = val;
+    logoInput.value = "";
+    generateQr();
+  }
+});
+
+clearLogoBtn.addEventListener("click", () => {
+  currentCenterLogo = null;
+  logoInput.value = "";
+  logoUrlInput.value = "";
+  generateQr();
+});
+
+let qrCodeInstance = new QRCodeStyling({
+  width: currentQRSize,
+  height: currentQRSize,
+  margin: 5,
+  type: "canvas",
+  qrOptions: { errorCorrectionLevel: "H" },
+});
+
+if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+  document.body.setAttribute("data-theme", "dark");
+  themeToggle.innerHTML = '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Zm-10-270Z"/></svg>';
+}
+themeToggle.addEventListener("click", () => {
+  if (document.body.getAttribute("data-theme") === "dark") {
+    document.body.removeAttribute("data-theme");
+    localStorage.setItem("theme", "light");
+    themeToggle.innerHTML =
+      '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M565-395q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35Zm-226.5 56.5Q280-397 280-480t58.5-141.5Q397-680 480-680t141.5 58.5Q680-563 680-480t-58.5 141.5Q563-280 480-280t-141.5-58.5ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Zm326-268Z"/></svg>';
+  } else {
+    document.body.setAttribute("data-theme", "dark");
+    localStorage.setItem("theme", "dark");
+    themeToggle.innerHTML =
+      '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Zm-10-270Z"/></svg>';
+  }
+});
+
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach((b) => b.classList.remove("active"));
+    document
+      .querySelectorAll(".tab-content")
+      .forEach((c) => c.classList.remove("active"));
+    btn.classList.add("active");
+    document
+      .getElementById(btn.getAttribute("data-target"))
+      .classList.add("active");
   });
 });
 
-// --- TEMPLATES ---
-templateSelector.addEventListener('change', (e) => {
-  document.querySelectorAll('.template-section').forEach(el => el.classList.remove('active'));
-  document.getElementById(`tpl-${e.target.value}`).classList.add('active');
+templateSelector.addEventListener("change", (e) => {
+  document
+    .querySelectorAll(".template-section")
+    .forEach((el) => el.classList.remove("active"));
+  document.getElementById(`tpl-${e.target.value}`).classList.add("active");
 });
 
 function getTemplateText() {
   const t = templateSelector.value;
-  if (t === 'text') return document.getElementById('qr-txt').value.trim();
-  if (t === 'wifi') {
-    const s = document.getElementById('wifi-ssid').value.trim();
-    const p = document.getElementById('wifi-pass').value.trim();
-    return s ? `WIFI:T:${document.getElementById('wifi-type').value};S:${s};P:${p};;` : '';
+  if (t === "text") return document.getElementById("qr-txt").value.trim();
+  if (t === "wifi") {
+    const s = document.getElementById("wifi-ssid").value.trim();
+    const p = document.getElementById("wifi-pass").value.trim();
+    return s
+      ? `WIFI:T:${document.getElementById("wifi-type").value};S:${s};P:${p};;`
+      : "";
   }
-  if (t === 'vcard') {
-    const n = document.getElementById('vc-name').value.trim(), p = document.getElementById('vc-phone').value.trim(), e = document.getElementById('vc-email').value.trim();
-    return n ? `BEGIN:VCARD\nVERSION:3.0\nFN:${n}\nTEL:${p}\nEMAIL:${e}\nEND:VCARD` : '';
+  if (t === "vcard") {
+    const n = document.getElementById("vc-name").value.trim(),
+      p = document.getElementById("vc-phone").value.trim(),
+      e = document.getElementById("vc-email").value.trim();
+    return n
+      ? `BEGIN:VCARD\nVERSION:3.0\nFN:${n}\nTEL:${p}\nEMAIL:${e}\nEND:VCARD`
+      : "";
   }
-  if (t === 'email') {
-    const to = document.getElementById('em-to').value.trim(), sub = document.getElementById('em-sub').value.trim(), body = document.getElementById('em-body').value.trim();
-    return to ? `mailto:${to}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}` : '';
+  if (t === "email") {
+    const to = document.getElementById("em-to").value.trim(),
+      sub = document.getElementById("em-sub").value.trim(),
+      body = document.getElementById("em-body").value.trim();
+    return to
+      ? `mailto:${to}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`
+      : "";
   }
-  if (t === 'sms') return `smsto:${document.getElementById('sms-phone').value.trim()}:${document.getElementById('sms-msg').value.trim()}`;
-  if (t === 'geo') return `geo:${document.getElementById('geo-lat').value},${document.getElementById('geo-lng').value}`;
-  return '';
+  if (t === "sms")
+    return `smsto:${document.getElementById("sms-phone").value.trim()}:${document.getElementById("sms-msg").value.trim()}`;
+  if (t === "geo")
+    return `geo:${document.getElementById("geo-lat").value},${document.getElementById("geo-lng").value}`;
+  if (t === "whatsapp") {
+    const waPhone = document
+      .getElementById("wa-phone")
+      .value.trim()
+      .replace(/[^0-9]/g, "");
+    const waMsg = document.getElementById("wa-msg").value.trim();
+    return waPhone
+      ? `https://wa.me/${waPhone}${waMsg ? "?text=" + encodeURIComponent(waMsg) : ""}`
+      : "";
+  }
+  if (t === "telegram") {
+    let tgUser = document
+      .getElementById("tg-user")
+      .value.trim()
+      .replace("@", "");
+    const tgMsg = document.getElementById("tg-msg").value.trim();
+    if (!tgUser) return "";
+    return tgMsg
+      ? `https://t.me/share/url?url=${tgUser}&text=${encodeURIComponent(tgMsg)}`
+      : `https://t.me/${tgUser}`;
+  }
+  if (t === "messenger") {
+    const fbUser = document.getElementById("fb-user").value.trim();
+    return fbUser ? `https://m.me/${fbUser}` : "";
+  }
+  return "";
 }
-// --- GEO LOCATION SEARCH ---
-const geoSearchInput = document.getElementById('geo-search');
-const geoLoader = document.getElementById('geo-loader');
 
-geoSearchInput.addEventListener('change', async (e) => {
+geoSearchInput.addEventListener("change", async (e) => {
   const query = e.target.value.trim();
   if (!query) return;
 
-  geoLoader.style.display = 'block';
+  geoLoader.style.display = "block";
   try {
-    // OpenStreetMap free geocoding API
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`,
+    );
     const data = await res.json();
 
     if (data && data.length > 0) {
-      document.getElementById('geo-lat').value = parseFloat(data[0].lat).toFixed(6);
-      document.getElementById('geo-lng').value = parseFloat(data[0].lon).toFixed(6);
+      document.getElementById("geo-lat").value = parseFloat(
+        data[0].lat,
+      ).toFixed(6);
+      document.getElementById("geo-lng").value = parseFloat(
+        data[0].lon,
+      ).toFixed(6);
     } else {
       alert("Location not found. Please try a different city name.");
     }
   } catch (err) {
     console.error("Geocoding failed:", err);
   }
-  geoLoader.style.display = 'none';
+  geoLoader.style.display = "none";
 });
 
-// Check Scannability Contrast
 function checkContrast() {
-  const hexToRgb = hex => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+  const hexToRgb = (hex) => [
+    parseInt(hex.slice(1, 3), 16),
+    parseInt(hex.slice(3, 5), 16),
+    parseInt(hex.slice(5, 7), 16),
+  ];
   const lum = ([r, g, b]) => {
-    let a = [r, g, b].map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    let a = [r, g, b].map((v) => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
     return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
-  }
+  };
   const l1 = lum(hexToRgb(colorLightInput.value));
   const l2 = lum(hexToRgb(colorDarkInput.value));
   const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 
   if (!transBgCheck.checked && ratio < 3.0) {
     contrastWarning.innerText = `⚠️ Low Contrast (${ratio.toFixed(1)}:1). QR may not scan well.`;
-    contrastWarning.style.display = 'block';
+    contrastWarning.style.display = "block";
   } else {
-    contrastWarning.style.display = 'none';
+    contrastWarning.style.display = "none";
   }
-} [colorDarkInput, colorLightInput, transBgCheck].forEach(el => el.addEventListener('change', checkContrast));
+}
+[colorDarkInput, colorLightInput, transBgCheck].forEach((el) =>
+  el.addEventListener("change", checkContrast),
+);
 
-// --- URL SHORTENER & HOSTING ---
 async function shortenUrl(longUrl) {
-  const apis = ["R6TkierZYnp2nPqoz5qE1r38SVwEwjPc7QT9zR7hvP0wI0JvUsU7bwzCVWLw", "kJV3c2Pd5RdKpaWkqf45Mo4jZf7VskWnrwzq7pOCEs0vhaauzOZwKjEEgJAo"];
+  const apis = [
+    "R6TkierZYnp2nPqoz5qE1r38SVwEwjPc7QT9zR7hvP0wI0JvUsU7bwzCVWLw",
+    "kJV3c2Pd5RdKpaWkqf45Mo4jZf7VskWnrwzq7pOCEs0vhaauzOZwKjEEgJAo",
+  ];
   for (let token of apis) {
     try {
       let res = await fetch("https://api.tinyurl.com/create", {
-        method: "POST", headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ url: longUrl, domain: "tinyurl.com" })
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: longUrl, domain: "tinyurl.com" }),
       });
       if (res.ok) return (await res.json()).data.tiny_url;
     } catch (e) { }
@@ -153,15 +309,13 @@ async function shortenUrl(longUrl) {
   return longUrl;
 }
 
-// Disable mutually exclusive checkboxes
-compressTextCheck.addEventListener('change', () => {
+compressTextCheck.addEventListener("change", () => {
   if (compressTextCheck.checked) shortenUrlCheck.checked = false;
 });
-shortenUrlCheck.addEventListener('change', () => {
+shortenUrlCheck.addEventListener("change", () => {
   if (shortenUrlCheck.checked) compressTextCheck.checked = false;
 });
 
-// --- GENERATOR LOGIC (CANVAS MANIPULATION) ---
 function isEyeArea(r, c, max) {
   return (r < 7 && c < 7) || (r < 7 && c >= max - 7) || (r >= max - 7 && c < 7);
 }
@@ -170,165 +324,200 @@ async function generateQr() {
   let txt = getTemplateText();
   if (!txt) return;
 
-  // Handle URL Shortening & Text Compression
-  if (templateSelector.value === 'text') {
+  if (templateSelector.value === "text") {
     if (compressTextCheck.checked) {
-      shortenLoader.style.display = 'inline';
+      shortenLoader.style.display = "inline";
       const payloadUrl = `https://pro-bandey.github.io/QR-SnG/?theme=dark&txt=${encodeURIComponent(txt)}`;
       txt = await shortenUrl(payloadUrl);
-      shortenLoader.style.display = 'none';
-    } else if (shortenUrlCheck.checked && txt.startsWith('http')) {
-      shortenLoader.style.display = 'inline';
+      shortenLoader.style.display = "none";
+    } else if (shortenUrlCheck.checked && txt.startsWith("http")) {
+      shortenLoader.style.display = "inline";
       txt = await shortenUrl(txt);
-      shortenLoader.style.display = 'none';
+      shortenLoader.style.display = "none";
     }
   }
 
   lastGeneratedText = txt;
 
-  const tempDiv = document.createElement("div");
-  const qr = new QRCode(tempDiv, { text: txt, correctLevel: QRCode.CorrectLevel.H });
+  const shapeType = document.getElementById("qr-shape").value;
+  const eyeType = document.getElementById("eye-shape").value;
+  const innerEyeType = document.getElementById("inner-eye-shape").value;
 
-  setTimeout(() => {
-    const modules = qr._oQRCode.modules;
-    const mCount = qr._oQRCode.moduleCount;
-    currentQRMatrix = modules;
+  let colorConfig = {};
+  if (colorDarkInput.value !== colorDark2Input.value) {
+    colorConfig = {
+      gradient: {
+        type: "linear",
+        rotation: Math.PI / 4,
+        colorStops: [
+          { offset: 0, color: colorDarkInput.value },
+          { offset: 1, color: colorDark2Input.value },
+        ],
+      },
+    };
+  } else {
+    colorConfig = { color: colorDarkInput.value };
+  }
 
-    const canvas = document.createElement('canvas');
-    canvas.width = currentQRSize; canvas.height = currentQRSize;
-    const ctx = canvas.getContext('2d');
+  qrCodeInstance.update({
+    width: currentQRSize,
+    height: currentQRSize,
+    data: txt,
+    margin: 5,
+    qrOptions: {
+      mode: "Byte",
+      errorCorrectionLevel: currentCenterLogo ? "Q" : "M",
+    },
+    image: currentCenterLogo,
+    imageOptions: {
+      crossOrigin: "anonymous",
+      margin: 2,
+      imageSize: 0.4,
+      hideBackgroundDots: true,
+    },
+    dotsOptions: { type: shapeType, ...colorConfig },
+    cornersSquareOptions: { type: eyeType, ...colorConfig },
+    cornersDotOptions: { type: innerEyeType, ...colorConfig },
+    backgroundOptions: {
+      color: transBgCheck.checked ? "transparent" : colorLightInput.value,
+    },
+  });
 
-    // Background
-    if (!transBgCheck.checked) {
-      ctx.fillStyle = colorLightInput.value;
-      ctx.fillRect(0, 0, currentQRSize, currentQRSize);
-    }
+  qrcodee.innerHTML = "";
+  qrcodee.title = "Output QR Code";
+  qrCodeInstance.append(qrcodee);
 
-    // Foreground Gradient
-    let fgStyle = colorDarkInput.value;
-    if (colorDarkInput.value !== colorDark2Input.value) {
-      let grad = ctx.createLinearGradient(0, 0, currentQRSize, currentQRSize);
-      grad.addColorStop(0, colorDarkInput.value);
-      grad.addColorStop(1, colorDark2Input.value);
-      fgStyle = grad;
-    }
-    ctx.fillStyle = fgStyle;
-
-    const rSize = currentQRSize / mCount;
-    const shape = qrShapeInput.value;
-    const eyeShape = eyeShapeInput.value;
-
-    for (let r = 0; r < mCount; r++) {
-      for (let c = 0; c < mCount; c++) {
-        if (modules[r][c]) {
-          if (isEyeArea(r, c, mCount)) {
-            ctx.beginPath();
-            if (eyeShape === 'circles') ctx.arc(c * rSize + rSize / 2, r * rSize + rSize / 2, rSize / 2 + 0.1, 0, 2 * Math.PI);
-            else if (eyeShape === 'rounded') ctx.roundRect(c * rSize, r * rSize, rSize + 0.5, rSize + 0.5, rSize * 0.4);
-            else ctx.fillRect(c * rSize, r * rSize, rSize + 0.5, rSize + 0.5);
-            ctx.fill();
-          } else {
-            ctx.beginPath();
-            if (shape === 'dots') ctx.arc(c * rSize + rSize / 2, r * rSize + rSize / 2, rSize / 2 - 0.5, 0, 2 * Math.PI);
-            else if (shape === 'liquid') ctx.roundRect(c * rSize, r * rSize, rSize + 0.5, rSize + 0.5, rSize * 0.4);
-            else ctx.fillRect(c * rSize, r * rSize, rSize + 0.5, rSize + 0.5);
-            ctx.fill();
-          }
-        }
-      }
-    }
-
-    qrcodee.innerHTML = '';
-    qrcodee.appendChild(canvas);
-    saveHistory('Generated At', lastGeneratedText);
-  }, 100);
+  saveHistory("Generated At", lastGeneratedText);
 }
-genbtn.addEventListener('click', generateQr);
 
-// --- SMART FILE NAMING ---
+document.getElementById("qr-shape").addEventListener("change", generateQr);
+document.getElementById("eye-shape").addEventListener("change", generateQr);
+document
+  .getElementById("inner-eye-shape")
+  .addEventListener("change", generateQr);
+
+genbtn.addEventListener("click", generateQr);
+
 function getSmartFilename(ext) {
-  let name = lastGeneratedText.replace(/^https?:\/\//i, '').replace(/^www\./i, '');
-  name = name.replace(/[\/\\?%*:|"<> \n]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  let name = lastGeneratedText
+    .replace(/^https?:\/\//i, "")
+    .replace(/^www\./i, "");
+  name = name
+    .replace(/[\/\\?%*:|"<> \n]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
   if (!name) name = "qr-code";
-  if (name.length > 50) name = name.substring(0, 50).replace(/-$/, '');
+  if (name.length > 50) name = name.substring(0, 50).replace(/-$/, "");
   return `QR-SnG_${name}.${ext}`;
 }
 
-// --- DOWNLOADS ---
-downloadbtn.addEventListener('click', () => {
-  if (!currentQRMatrix) return;
-  const fmt = downloadFormat.value;
-  const canvas = qrcodee.querySelector('canvas');
-  const filename = getSmartFilename(fmt);
+downloadbtn.addEventListener("click", async () => {
+  if (!lastGeneratedText || lastGeneratedText === "qr-code") return;
 
-  if (fmt === 'png' || fmt === 'jpg') {
-    const a = document.createElement('a');
-    a.href = canvas.toDataURL(fmt === 'png' ? 'image/png' : 'image/jpeg');
-    a.download = filename; a.click();
-  } else if (fmt === 'svg') {
-    const mCount = currentQRMatrix.length; const rSize = currentQRSize / mCount;
-    let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${currentQRSize} ${currentQRSize}" width="${currentQRSize}" height="${currentQRSize}">`;
-    if (!transBgCheck.checked) svg += `<rect width="100%" height="100%" fill="${colorLightInput.value}"/>`;
-    for (let r = 0; r < mCount; r++) {
-      for (let c = 0; c < mCount; c++) {
-        if (currentQRMatrix[r][c]) svg += `<rect x="${c * rSize}" y="${r * rSize}" width="${rSize + 0.1}" height="${rSize + 0.1}" fill="${colorDarkInput.value}"/>`;
-      }
-    }
-    svg += `</svg>`;
-    const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+  const originalFmt = downloadFormat.value;
+  const libraryFmt = originalFmt === "jpg" ? "jpeg" : originalFmt;
+  const filename = getSmartFilename(originalFmt);
+
+  try {
+    const blob = await qrCodeInstance.getRawData(libraryFmt);
+    if (!blob) return;
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (err) {
+    console.error("Download failed:", err);
+    alert("Download failed. Please try a different format.");
   }
 });
 
-// --- SMART SCAN PARSER ---
 function parseScanResult(txt) {
-  scanActions.style.display = 'flex';
-  actionbtn.style.display = 'none';
+  scanActions.style.display = "flex";
+  actionbtn.style.display = "none";
   actionbtn.onclick = null;
 
-  if (txt.startsWith('WIFI:')) {
-    const type = (txt.match(/T:(.*?);/) || [])[1] || '';
-    const ssid = (txt.match(/S:(.*?);/) || [])[1] || '';
-    const pass = (txt.match(/P:(.*?);/) || [])[1] || '';
-    return `<strong>Wi-Fi Network</strong><br><b>Name:</b> ${ssid}<br><b>Pass:</b> ${pass || '<i>None</i>'}<br><b>Security:</b> ${type}`;
+  if (txt.startsWith("WIFI:")) {
+    const type = (txt.match(/T:(.*?);/) || [])[1] || "";
+    const ssid = (txt.match(/S:(.*?);/) || [])[1] || "";
+    const pass = (txt.match(/P:(.*?);/) || [])[1] || "";
+    return `<strong>Wi-Fi Network</strong><br><b>Name:</b> ${ssid}<br><b>Pass:</b> ${pass || "<i>None</i>"}<br><b>Security:</b> ${type}`;
   }
-  if (txt.startsWith('BEGIN:VCARD')) {
-    const n = (txt.match(/FN:(.*)/) || [])[1] || '';
-    const tel = (txt.match(/TEL:(.*)/) || [])[1] || '';
-    const em = (txt.match(/EMAIL:(.*)/) || [])[1] || '';
+  if (txt.startsWith("BEGIN:VCARD")) {
+    const n = (txt.match(/FN:(.*)/) || [])[1] || "";
+    const tel = (txt.match(/TEL:(.*)/) || [])[1] || "";
+    const em = (txt.match(/EMAIL:(.*)/) || [])[1] || "";
     return `<strong>Contact Card</strong><br><b>Name:</b> ${n}<br><b>Phone:</b> <a href="tel:${tel}">${tel}</a><br><b>Email:</b> <a href="mailto:${em}" target="_blank">${em}</a>`;
   }
-  if (txt.startsWith('http://') || txt.startsWith('https://') || txt.startsWith('chrome:') || txt.startsWith('about:')) {
-    actionbtn.style.display = 'flex'; actionbtn.innerHTML = `${actionbtnSvg.link} Open Link`;
-    actionbtn.onclick = () => { if (chrome?.tabs) chrome.tabs.create({ url: txt }); else window.open(txt, '_blank'); };
-    return `<strong>URL Link</strong><br> <a href="${txt}" target="_blank">${txt}</a>`;
-  }
-  if (txt.startsWith('geo:')) {
-    actionbtn.style.display = 'flex'; actionbtn.innerHTML = `${actionbtnSvg.Location} Open Location`;
-    actionbtn.onclick = () => { if (chrome?.tabs) chrome.tabs.create({ url: txt }); else window.open(txt, '_blank'); };
-    return `<strong>URL Link</strong><br> <a href="${txt}" target="_blank">${txt}</a>`;
-  }
-  if (txt.startsWith('mailto:')) {
-    actionbtn.style.display = 'flex'; actionbtn.innerHTML = `${actionbtnSvg.email} Send Email`;
-    actionbtn.onclick = () => { if (chrome?.tabs) chrome.tabs.create({ url: txt }); else window.open(txt, '_blank'); };
+
+  if (txt.startsWith("http://wa.me") || txt.startsWith("https://wa.me")) {
+    actionbtn.style.display = "flex";
+    actionbtn.innerHTML = `${actionbtnSvg.sms} Send To WA`;
+    actionbtn.onclick = () => {
+      if (chrome?.tabs) chrome.tabs.create({ url: txt });
+      else window.open(txt, "_blank");
+    };
     return `<strong>URL Link</strong><br><a href="${txt}" target="_blank">${txt}</a>`;
   }
-  if (txt.startsWith('smsto:')) {
-    actionbtn.style.display = 'flex'; actionbtn.innerHTML = `${actionbtnSvg.sms} Send SMS`;
-    actionbtn.onclick = () => { if (chrome?.tabs) chrome.tabs.create({ url: txt }); else window.open(txt, '_blank'); };
+  if (txt.startsWith("http://t.me") || txt.startsWith("https://t.me")) {
+    actionbtn.style.display = "flex";
+    actionbtn.innerHTML = `${actionbtnSvg.sms} Send To Tele`;
+    actionbtn.onclick = () => {
+      if (chrome?.tabs) chrome.tabs.create({ url: txt });
+      else window.open(txt, "_blank");
+    };
+    return `<strong>URL Link</strong><br><a href="${txt}" target="_blank">${txt}</a>`;
+  }
+  if (txt.startsWith("http://") || txt.startsWith("https://") || txt.startsWith("chrome:") || txt.startsWith("about:")) {
+    actionbtn.style.display = "flex";
+    actionbtn.innerHTML = `${actionbtnSvg.link} Open Link`;
+    actionbtn.onclick = () => {
+      if (chrome?.tabs) chrome.tabs.create({ url: txt });
+      else window.open(txt, "_blank");
+    };
+    return `<strong>URL Link</strong><br> <a href="${txt}" target="_blank">${txt}</a>`;
+  }
+  if (txt.startsWith("geo:")) {
+    actionbtn.style.display = "flex";
+    actionbtn.innerHTML = `${actionbtnSvg.Location} Open Location`;
+    actionbtn.onclick = () => {
+      if (chrome?.tabs) chrome.tabs.create({ url: txt });
+      else window.open(txt, "_blank");
+    };
+    return `<strong>URL Link</strong><br> <a href="${txt}" target="_blank">${txt}</a>`;
+  }
+
+  if (txt.startsWith("mailto:")) {
+    actionbtn.style.display = "flex";
+    actionbtn.innerHTML = `${actionbtnSvg.email} Send Email`;
+    actionbtn.onclick = () => {
+      if (chrome?.tabs) chrome.tabs.create({ url: txt });
+      else window.open(txt, "_blank");
+    };
+    return `<strong>URL Link</strong><br><a href="${txt}" target="_blank">${txt}</a>`;
+  }
+
+  if (txt.startsWith("smsto:")) {
+    actionbtn.style.display = "flex";
+    actionbtn.innerHTML = `${actionbtnSvg.sms} Send SMS`;
+    actionbtn.onclick = () => {
+      if (chrome?.tabs) chrome.tabs.create({ url: txt });
+      else window.open(txt, "_blank");
+    };
     return `<strong>URL Link</strong><br><a href="${txt}" target="_blank">${txt}</a>`;
   }
   return `<strong>Text Result</strong><br> ${txt}`;
 }
 
-// --- Scan QR using jsQR (No worker, CSP safe, works everywhere) ---
 
 function scanQR(file) {
   outqrtxt.innerHTML = "<i>Scanning...</i>";
   scanPreview.src = URL.createObjectURL(file);
-  scanPreview.style.display = 'block';
+  scanPreview.style.display = "block";
   scanActions.style.display = "none";
 
   const reader = new FileReader();
@@ -337,9 +526,7 @@ function scanQR(file) {
     const img = new Image();
 
     img.onload = () => {
-      // Create a hidden canvas to extract image data (required by jsQR)
       const canvas = document.createElement("canvas");
-      // willReadFrequently optimizes canvas for heavy read operations
       const context = canvas.getContext("2d", { willReadFrequently: true });
 
       canvas.width = img.width;
@@ -348,101 +535,96 @@ function scanQR(file) {
 
       try {
         const imageData = context.getImageData(0, 0, img.width, img.height);
-
-        // Pass image data to jsQR
         const code = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: "attemptBoth", // Tries standard and inverted colors
+          inversionAttempts: "attemptBoth",
         });
-
         if (code && code.data) {
           outqrtxt.innerHTML = parseScanResult(code.data);
-          outqrtxt.setAttribute('data-raw', code.data);
-          saveHistory('Scanned', code.data);
+          outqrtxt.setAttribute("data-raw", code.data);
+          saveHistory("Scanned", code.data);
         } else {
-          outqrtxt.innerHTML = '<span style="color:red">No QR code found in the image.</span>';
-          scanActions.style.display = 'none';
+          outqrtxt.innerHTML =
+            '<span style="color:red">No QR code found in the image.</span>';
+          scanActions.style.display = "none";
         }
       } catch (err) {
         console.error("jsQR Error:", err);
-        outqrtxt.innerHTML = '<span style="color:red">Error processing image format.</span>';
+        outqrtxt.innerHTML =
+          '<span style="color:red">Error processing image format.</span>';
       }
     };
-
     img.src = readerEvent.target.result;
   };
-
   reader.onerror = () => {
     outqrtxt.innerHTML = '<span style="color:red">Failed to read file.</span>';
   };
-
   reader.readAsDataURL(file);
 }
 
-input.addEventListener('change', (e) => { if (e.target.files.length > 0) scanQR(e.target.files[0]); });
-
-copybtn.addEventListener('click', () => {
-  const t = outqrtxt.getAttribute('data-raw');
-  if (t) navigator.clipboard.writeText(t).catch(e => console.error(e));
+input.addEventListener("change", (e) => {
+  if (e.target.files.length > 0) scanQR(e.target.files[0]);
 });
 
-clipboardbtn.addEventListener('click', () => {
-  navigator.clipboard.readText().then(txt => {
+copybtn.addEventListener("click", () => {
+  const t = outqrtxt.getAttribute("data-raw");
+  if (t) navigator.clipboard.writeText(t).catch((e) => console.error(e));
+});
+
+clipboardbtn.addEventListener("click", () => {
+  navigator.clipboard.readText().then((txt) => {
     if (txt) {
       document.querySelector('[data-target="tab-gen"]').click();
-      templateSelector.value = 'text'; templateSelector.dispatchEvent(new Event('change'));
-      document.getElementById('qr-txt').value = txt; generateQr();
+      templateSelector.value = "text";
+      templateSelector.dispatchEvent(new Event("change"));
+      document.getElementById("qr-txt").value = txt;
+      generateQr();
     }
   });
 });
 
 
-
-// --- DRAG & DROP (Flicker Fix Applied) ---
-let dragCounter = 0;
-
-window.addEventListener('dragenter', (e) => {
+window.addEventListener("dragenter", (e) => {
   e.preventDefault();
   dragCounter++;
-  if (dragCounter === 1) dndOverlay.classList.add('active');
+  if (dragCounter === 1) dndOverlay.classList.add("active");
 });
 
-window.addEventListener('dragleave', (e) => {
+window.addEventListener("dragleave", (e) => {
   e.preventDefault();
   dragCounter--;
-  if (dragCounter === 0) dndOverlay.classList.remove('active');
+  if (dragCounter === 0) dndOverlay.classList.remove("active");
 });
 
-window.addEventListener('dragover', (e) => {
-  e.preventDefault(); // Crucial: Stops the browser from defaulting to new tab
+window.addEventListener("dragover", (e) => {
+  e.preventDefault();
 });
 
-window.addEventListener('drop', (e) => {
+window.addEventListener("drop", (e) => {
   e.preventDefault();
   dragCounter = 0;
-  dndOverlay.classList.remove('active');
+  dndOverlay.classList.remove("active");
 
-  if (e.dataTransfer.files.length > 0 && e.dataTransfer.files[0].type.includes('image')) {
+  if (e.dataTransfer.files.length > 0 && e.dataTransfer.files[0].type.includes("image")) {
     document.querySelector('[data-target="tab-scan"]').click();
     scanQR(e.dataTransfer.files[0]);
   } else if (e.dataTransfer.items.length > 0) {
-    e.dataTransfer.items[0].getAsString(text => {
+    e.dataTransfer.items[0].getAsString((text) => {
       if (text) {
         document.querySelector('[data-target="tab-gen"]').click();
-        templateSelector.value = 'text'; templateSelector.dispatchEvent(new Event('change'));
-        document.getElementById('qr-txt').value = text; generateQr();
+        templateSelector.value = "text";
+        templateSelector.dispatchEvent(new Event("change"));
+        document.getElementById("qr-txt").value = text;
+        generateQr();
       }
     });
   }
 });
 
-// --- ADVANCED HISTORY LOGIC (CSP FIX APPLIED) ---
-let historyState = [];
-let currentHistView = 'all';
-
 function manageHistoryStorage() {
   const now = Date.now();
-  historyState = historyState.filter(item => {
-    if (item.deletedAt && (now - item.deletedAt > 30 * 24 * 60 * 60 * 1000)) return false;
+  historyState = historyState.filter((item) => {
+    if (item.deletedAt && now - item.deletedAt > 30 * 24 * 60 * 60 * 1000)
+      return false;
     return true;
   });
   chrome?.storage?.local.set({ appHistory: historyState });
@@ -451,7 +633,7 @@ function manageHistoryStorage() {
 
 function loadHistory() {
   if (chrome?.storage?.local) {
-    chrome.storage.local.get(['appHistory'], (res) => {
+    chrome.storage.local.get(["appHistory"], (res) => {
       historyState = res.appHistory || [];
       manageHistoryStorage();
     });
@@ -460,78 +642,114 @@ function loadHistory() {
 
 function saveHistory(type, data) {
   if (!data) return;
-  const activeItems = historyState.filter(i => !i.deletedAt);
+  const activeItems = historyState.filter((i) => !i.deletedAt);
   if (activeItems.length > 0 && activeItems[0].data === data) return;
 
-  historyState.unshift({ id: Date.now(), type, data, date: new Date().toLocaleDateString(), isFav: false, deletedAt: null });
+  historyState.unshift({
+    id: Date.now(),
+    type,
+    data,
+    date: new Date().toLocaleDateString(),
+    isFav: false,
+    deletedAt: null,
+  });
   manageHistoryStorage();
 }
 
-document.querySelectorAll('.hist-tab').forEach(t => {
-  t.addEventListener('click', () => {
-    document.querySelectorAll('.hist-tab').forEach(b => b.classList.remove('active'));
-    t.classList.add('active');
-    currentHistView = t.getAttribute('data-view');
+document.querySelectorAll(".hist-tab").forEach((t) => {
+  t.addEventListener("click", () => {
+    document
+      .querySelectorAll(".hist-tab")
+      .forEach((b) => b.classList.remove("active"));
+    t.classList.add("active");
+    currentHistView = t.getAttribute("data-view");
     renderHistory();
   });
 });
 
-document.getElementById('empty-bin-btn').addEventListener('click', () => {
-  historyState = historyState.filter(i => !i.deletedAt);
+document.getElementById("empty-bin-btn").addEventListener("click", () => {
+  historyState = historyState.filter((i) => !i.deletedAt);
   manageHistoryStorage();
 });
 
-// Helper actions
-function toggleFav(id) { const idx = historyState.findIndex(i => i.id === id); if (idx > -1) historyState[idx].isFav = !historyState[idx].isFav; manageHistoryStorage(); }
-function moveToBin(id) { const idx = historyState.findIndex(i => i.id === id); if (idx > -1) historyState[idx].deletedAt = Date.now(); manageHistoryStorage(); }
-function restoreItem(id) { const idx = historyState.findIndex(i => i.id === id); if (idx > -1) historyState[idx].deletedAt = null; manageHistoryStorage(); }
-function deletePerm(id) { historyState = historyState.filter(i => i.id !== id); manageHistoryStorage(); }
+function toggleFav(id) {
+  const idx = historyState.findIndex((i) => i.id === id);
+  if (idx > -1) historyState[idx].isFav = !historyState[idx].isFav;
+  manageHistoryStorage();
+}
+function moveToBin(id) {
+  const idx = historyState.findIndex((i) => i.id === id);
+  if (idx > -1) historyState[idx].deletedAt = Date.now();
+  manageHistoryStorage();
+}
+function restoreItem(id) {
+  const idx = historyState.findIndex((i) => i.id === id);
+  if (idx > -1) historyState[idx].deletedAt = null;
+  manageHistoryStorage();
+}
+function deletePerm(id) {
+  historyState = historyState.filter((i) => i.id !== id);
+  manageHistoryStorage();
+}
 function useItem(id) {
-  const item = historyState.find(i => i.id === id); if (!item) return;
+  const item = historyState.find((i) => i.id === id);
+  if (!item) return;
   document.querySelector('[data-target="tab-gen"]').click();
-  templateSelector.value = 'text'; templateSelector.dispatchEvent(new Event('change'));
-  document.getElementById('qr-txt').value = item.data; generateQr();
+  templateSelector.value = "text";
+  templateSelector.dispatchEvent(new Event("change"));
+  document.getElementById("qr-txt").value = item.data;
+  generateQr();
 }
 
-// Event Delegation for History Buttons (Fixes Chrome CSP Errors)
-document.getElementById('history-list').addEventListener('click', (e) => {
-  const btn = e.target.closest('.action-btn');
+document.getElementById("history-list").addEventListener("click", (e) => {
+  const btn = e.target.closest(".action-btn");
   if (!btn) return;
 
-  const action = btn.getAttribute('data-action');
-  const id = parseInt(btn.getAttribute('data-id'));
+  const action = btn.getAttribute("data-action");
+  const id = parseInt(btn.getAttribute("data-id"));
 
-  if (action === 'fav') toggleFav(id);
-  else if (action === 'bin') moveToBin(id);
-  else if (action === 'restore') restoreItem(id);
-  else if (action === 'delete') deletePerm(id);
-  else if (action === 'use') useItem(id);
+  if (action === "fav") toggleFav(id);
+  else if (action === "bin") moveToBin(id);
+  else if (action === "restore") restoreItem(id);
+  else if (action === "delete") deletePerm(id);
+  else if (action === "use") useItem(id);
 });
 
 function renderHistory() {
-  const list = document.getElementById('history-list');
-  const emptyRow = document.getElementById('empty-bin-row');
-  list.innerHTML = '';
+  const list = document.getElementById("history-list");
+  const emptyRow = document.getElementById("empty-bin-row");
+  list.innerHTML = "";
 
   let filtered = historyState;
-  if (currentHistView === 'all') { filtered = historyState.filter(i => !i.deletedAt); emptyRow.style.display = 'none'; }
-  if (currentHistView === 'fav') { filtered = historyState.filter(i => !i.deletedAt && i.isFav); emptyRow.style.display = 'none'; }
-  if (currentHistView === 'bin') { filtered = historyState.filter(i => i.deletedAt); emptyRow.style.display = filtered.length ? 'block' : 'none'; }
+  if (currentHistView === "all") {
+    filtered = historyState.filter((i) => !i.deletedAt);
+    emptyRow.style.display = "none";
+  }
+  if (currentHistView === "fav") {
+    filtered = historyState.filter((i) => !i.deletedAt && i.isFav);
+    emptyRow.style.display = "none";
+  }
+  if (currentHistView === "bin") {
+    filtered = historyState.filter((i) => i.deletedAt);
+    emptyRow.style.display = filtered.length ? "block" : "none";
+  }
+  if (filtered.length === 0) {
+    list.innerHTML = `<div style="text-align:center;font-size:12px;color:var(--text-muted);padding:20px;">No items found.</div>`;
+    return;
+  }
 
-  if (filtered.length === 0) { list.innerHTML = `<div style="text-align:center;font-size:12px;color:var(--text-muted);padding:20px;">No items found.</div>`; return; }
+  filtered.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "history-item";
 
-  filtered.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'history-item';
-
-    let actionsHTML = '';
+    let actionsHTML = "";
     if (item.deletedAt) {
-      actionsHTML = `<button class="icon-btn action-btn" data-action="restore" data-id="${item.id}" title="Restore"><svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48752C"><path d="M444-312h72v-150l57 57 51-51-144-144-144 144 51 51 57-57v150ZM312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg></button>
-                     <button class="icon-btn action-btn" data-action="delete" data-id="${item.id}" title="Delete Forever" style="color:var(--danger)"><svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA3323"><path d="m400-325 80-80 80 80 51-51-80-80 80-80-51-51-80 80-80-80-51 51 80 80-80 80 51 51Zm-88 181q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg></button>`;
+      actionsHTML = `<button class="icon-btn action-btn" data-action="restore" data-id="${item.id}" title="Restore"><svg height="20px" viewBox="0 -960 960 960" width="20px" fill="#48752C"><path d="M444-312h72v-150l57 57 51-51-144-144-144 144 51 51 57-57v150ZM312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg></button>
+                     <button class="icon-btn action-btn" data-action="delete" data-id="${item.id}" title="Delete Forever" style="color:var(--danger)"><svg height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA3323"><path d="m400-325 80-80 80 80 51-51-80-80 80-80-51-51-80 80-80-80-51 51 80 80-80 80 51 51Zm-88 181q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg></button>`;
     } else {
-      actionsHTML = `<button class="icon-btn action-btn" data-action="fav" data-id="${item.id}" title="Favorite">${item.isFav ? '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA33F7"><path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M440-501Zm0 381L313-234q-72-65-123.5-116t-85-96q-33.5-45-49-87T40-621q0-94 63-156.5T260-840q52 0 99 22t81 62q34-40 81-62t99-22q81 0 136 45.5T831-680h-85q-18-40-53-60t-73-20q-51 0-88 27.5T463-660h-46q-31-45-70.5-72.5T260-760q-57 0-98.5 39.5T120-621q0 33 14 67t50 78.5q36 44.5 98 104T440-228q26-23 61-53t56-50l9 9 19.5 19.5L605-283l9 9q-22 20-56 49.5T498-172l-58 52Zm280-160v-120H600v-80h120v-120h80v120h120v80H800v120h-80Z"/></svg>'}</button>
-                     <button class="icon-btn action-btn" data-action="use" data-id="${item.id}" title="Re-Use"><svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M314-115q-104-48-169-145T80-479q0-26 2.5-51t8.5-49l-46 27-40-69 191-110 110 190-70 40-54-94q-11 27-16.5 56t-5.5 60q0 97 53 176.5T354-185l-40 70Zm306-485v-80h109q-46-57-111-88.5T480-800q-55 0-104 17t-90 48l-40-70q50-35 109-55t125-20q79 0 151 29.5T760-765v-55h80v220H620ZM594 0 403-110l110-190 69 40-57 98q118-17 196.5-107T800-480q0-11-.5-20.5T797-520h81q1 10 1.5 19.5t.5 20.5q0 135-80.5 241.5T590-95l44 26-40 69Z"/></svg></button>
-                     <button class="icon-btn action-btn" data-action="bin" data-id="${item.id}" title="Move to Trash"><svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA3323"><path d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z"/></svg></button>`;
+      actionsHTML = `<button class="icon-btn action-btn" data-action="fav" data-id="${item.id}" title="Favorite">${item.isFav ? '<svg height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA33F7"><path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z"/></svg>' : '<svg height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M440-501Zm0 381L313-234q-72-65-123.5-116t-85-96q-33.5-45-49-87T40-621q0-94 63-156.5T260-840q52 0 99 22t81 62q34-40 81-62t99-22q81 0 136 45.5T831-680h-85q-18-40-53-60t-73-20q-51 0-88 27.5T463-660h-46q-31-45-70.5-72.5T260-760q-57 0-98.5 39.5T120-621q0 33 14 67t50 78.5q36 44.5 98 104T440-228q26-23 61-53t56-50l9 9 19.5 19.5L605-283l9 9q-22 20-56 49.5T498-172l-58 52Zm280-160v-120H600v-80h120v-120h80v120h120v80H800v120h-80Z"/></svg>'}</button>
+                     <button class="icon-btn action-btn" data-action="use" data-id="${item.id}" title="Re-Use"><svg height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M314-115q-104-48-169-145T80-479q0-26 2.5-51t8.5-49l-46 27-40-69 191-110 110 190-70 40-54-94q-11 27-16.5 56t-5.5 60q0 97 53 176.5T354-185l-40 70Zm306-485v-80h109q-46-57-111-88.5T480-800q-55 0-104 17t-90 48l-40-70q50-35 109-55t125-20q79 0 151 29.5T760-765v-55h80v220H620ZM594 0 403-110l110-190 69 40-57 98q118-17 196.5-107T800-480q0-11-.5-20.5T797-520h81q1 10 1.5 19.5t.5 20.5q0 135-80.5 241.5T590-95l44 26-40 69Z"/></svg></button>
+                     <button class="icon-btn action-btn" data-action="bin" data-id="${item.id}" title="Move to Trash"><svg height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA3323"><path d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z"/></svg></button>`;
     }
 
     div.innerHTML = `
@@ -548,79 +766,95 @@ function renderHistory() {
 loadHistory();
 
 if (scanPageBtn) {
-  scanPageBtn.addEventListener('click', () => {
+  scanPageBtn.addEventListener("click", () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, { action: "start_selection" }).catch(err => {
-        alert("Please refresh the webpage to enable the screen scanner.");
-      });
+      chrome.tabs
+        .sendMessage(tabs[0].id, { action: "start_selection" })
+        .catch((err) => {
+          alert("Please refresh the webpage to enable the screen scanner.");
+        });
     });
   });
 }
 
-// --- CONTEXT MENUS STORAGE LISTENERS ---
 if (chrome && chrome.storage && chrome.storage.local) {
   chrome.storage.local.get(["qrurl", "qrimageurl"], (result) => {
     if (result.qrurl) {
       document.querySelector('[data-target="tab-gen"]').click();
-      templateSelector.value = 'text'; templateSelector.dispatchEvent(new Event('change'));
-      document.getElementById('qr-txt').value = result.qrurl; generateQr();
+      templateSelector.value = "text";
+      templateSelector.dispatchEvent(new Event("change"));
+      document.getElementById("qr-txt").value = result.qrurl;
+      generateQr();
       chrome.storage.local.remove("qrurl");
     }
     if (result.qrimageurl) {
       document.querySelector('[data-target="tab-scan"]').click();
-      fetch(result.qrimageurl).then(r => r.blob()).then(scanQR);
+      fetch(result.qrimageurl)
+        .then((r) => r.blob())
+        .then(scanQR);
       chrome.storage.local.remove("qrimageurl");
     }
   });
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local') {
+    if (area === "local") {
       if (changes["qrurl"] && changes["qrurl"].newValue) {
         document.querySelector('[data-target="tab-gen"]').click();
-        templateSelector.value = 'text'; templateSelector.dispatchEvent(new Event('change'));
-        document.getElementById('qr-txt').value = changes["qrurl"].newValue; generateQr();
+        templateSelector.value = "text";
+        templateSelector.dispatchEvent(new Event("change"));
+        document.getElementById("qr-txt").value = changes["qrurl"].newValue;
+        generateQr();
         chrome.storage.local.remove("qrurl");
       }
       if (changes["qrimageurl"] && changes["qrimageurl"].newValue) {
         document.querySelector('[data-target="tab-scan"]').click();
-        fetch(changes["qrimageurl"].newValue).then(r => r.blob()).then(scanQR);
+        fetch(changes["qrimageurl"].newValue)
+          .then((r) => r.blob())
+          .then(scanQR);
         chrome.storage.local.remove("qrimageurl");
       }
     }
-
     if (changes["qrAreaScan"] && changes["qrAreaScan"].newValue) {
       const data = changes["qrAreaScan"].newValue;
       document.querySelector('[data-target="tab-scan"]').click();
       outqrtxt.innerHTML = "<i>Cropping & Scanning...</i>";
-
       const img = new Image();
       img.onload = () => {
-        // Create canvas exactly the size of the user's selection box
         const canvas = document.createElement("canvas");
         canvas.width = data.rect.w;
         canvas.height = data.rect.h;
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
-
-        // Draw only the cropped portion from the full screenshot
-        ctx.drawImage(img, data.rect.x, data.rect.y, data.rect.w, data.rect.h, 0, 0, data.rect.w, data.rect.h);
-
-        // Show preview of the cropped area
+        ctx.drawImage(
+          img,
+          data.rect.x,
+          data.rect.y,
+          data.rect.w,
+          data.rect.h,
+          0,
+          0,
+          data.rect.w,
+          data.rect.h,
+        );
         scanPreview.src = canvas.toDataURL("image/png");
-        scanPreview.style.display = 'block';
-
+        scanPreview.style.display = "block";
         try {
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "attemptBoth" });
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: "attemptBoth",
+          });
 
           if (code && code.data) {
             outqrtxt.innerHTML = parseScanResult(code.data);
-            outqrtxt.setAttribute('data-raw', code.data);
-            saveHistory('Scanned (Screen)', code.data);
+            outqrtxt.setAttribute("data-raw", code.data);
+            saveHistory("Scanned (Screen)", code.data);
           } else {
-            outqrtxt.innerHTML = '<span style="color:red">No QR found in selected area.</span>';
+            outqrtxt.innerHTML =
+              '<span style="color:red">No QR found in selected area.</span>';
           }
-        } catch (e) { outqrtxt.innerHTML = '<span style="color:red">Error scanning area.</span>'; }
-
-        chrome.storage.local.remove("qrAreaScan"); // Clear memory
+        } catch (e) {
+          outqrtxt.innerHTML =
+            '<span style="color:red">Error scanning area.</span>';
+        }
+        chrome.storage.local.remove("qrAreaScan");
       };
       img.src = data.imgUrl;
     }
