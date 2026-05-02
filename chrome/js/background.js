@@ -6,7 +6,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
   chrome.contextMenus.create({
     id: "openSidePanel1",
-    title: 'Create QR for "%s',
+    title: 'Create QR for "%s"',
     contexts: ["selection"],
   });
   chrome.contextMenus.create({
