@@ -39,6 +39,7 @@ const actionbtnSvg = {
   email: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z"/></svg>',
 };
 const builtInLogos = {
+  qrsng: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%234F46E5'><path d='M30.5 30.5h180v40h-140v100h140v40h-180zm205 0h40v80h-40zm66 0h180v180h-100v-40h60v-100h-100v20h-40z'/><path d='M90.5 90.5h60v60h-60zm271 0h60v60h-60zm-191 10h40v40h-40zm65 51h40v122h-84a396 396 0 0 0-1-39.5q22.494-.75 45-.5zm66 19h40v40h-40zm-271 63h40v40h-40zm81 0q20.006-.25 40 .5a396 396 0 0 0-1 39.5h-39zm204 0h85v40h-85zm126 0h40v40h-40zm-60 68h100v180h-180v-40h140v-100h-60zm-351 14h180v166h-60v-40h20v-86h-100v126h-40zm205 0h106v40h-66v46h-40z'/><path d='M361.5 361.5h60v60h-60zm-271 20h60v40h-20v60h-40zm145 60h40v40h-40z'/></svg>",
   whatsapp: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325D366'><path d='M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.029 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z'/></svg>",
   telegram: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23229ED9'><path d='M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.686c.223-.195-.054-.282-.346-.086l-6.4 4.025-2.76-.86c-.6-.188-.616-.602.126-.893l10.784-4.156c.5-.184.945.105.782 1.011z'/></svg>",
   email: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23EA4335'><path d='M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/></svg>",
@@ -637,15 +638,21 @@ clipboardbtn.addEventListener("click", () => {
   });
 });
 
+// if (scanPageBtn) {
+//   scanPageBtn.addEventListener('click', () => {
+//     extApi.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+//       if (tabs && tabs[0]) {
+//         extApi.tabs.sendMessage(tabs[0].id, { action: "start_selection" }).catch(err => {
+//           alert("Cannot scan this page. \n Most of time this feature not working on Firefox \n in future we fully fix this issue");
+//         });
+//       }
+//     });
+//   });
+// }
+
 if (scanPageBtn) {
   scanPageBtn.addEventListener('click', () => {
-    extApi.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-      if (tabs && tabs[0]) {
-        extApi.tabs.sendMessage(tabs[0].id, { action: "start_selection" }).catch(err => {
-          alert("Cannot scan this page. \n Most of time this feature not working on Firefox \n in future we fully fix this issue");
-        });
-      }
-    });
+    alert("Cannot scan this page. \n This feature not avaliable for FireFox yet");
   });
 }
 
@@ -959,43 +966,6 @@ if (extApi && extApi.storage && extApi.storage.local) {
         document.querySelector('[data-target="tab-scan"]').click();
         fetchAndScanExternalImage(changes["qrimageurl"].newValue);
         extApi.storage.local.remove("qrimageurl");
-      }
-      if (changes["qrAreaScan"] && changes["qrAreaScan"].newValue) {
-        const data = changes["qrAreaScan"].newValue;
-        document.querySelector('[data-target="tab-scan"]').click();
-
-        outqrtxt.innerHTML = "";
-        outqrtxt.insertAdjacentHTML("beforeend", "<i>Cropping & Scanning...</i>");
-        scanActions.style.display = 'none';
-
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          canvas.width = data.rect.w;
-          canvas.height = data.rect.h;
-          const ctx = canvas.getContext("2d", { willReadFrequently: true });
-          ctx.drawImage(img, data.rect.x, data.rect.y, data.rect.w, data.rect.h, 0, 0, data.rect.w, data.rect.h);
-          scanPreview.src = canvas.toDataURL("image/png");
-          scanPreview.style.display = 'block';
-          try {
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const qrResult = jsQR(imageData.data, canvas.width, canvas.height, { inversionAttempts: "attemptBoth" });
-            if (qrResult && qrResult.data) {
-              outqrtxt.innerHTML = "";
-              outqrtxt.appendChild(parseScanResult(qrResult.data));
-              outqrtxt.setAttribute('data-raw', qrResult.data);
-              saveHistory('Scanned (Screen)', qrResult.data);
-            } else {
-              outqrtxt.innerHTML = "";
-              outqrtxt.insertAdjacentHTML("beforeend", '<span style="color:red">No QR found in selected area.</span>');
-            }
-          } catch (e) {
-            outqrtxt.innerHTML = "";
-            outqrtxt.insertAdjacentHTML("beforeend", '<span style="color:red">Error scanning area.</span>');
-          }
-          extApi.storage.local.remove("qrAreaScan");
-        };
-        img.src = data.imgUrl;
       }
     }
   });

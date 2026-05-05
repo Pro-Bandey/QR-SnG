@@ -1,3 +1,17 @@
+#### **The Android & Cross Device (v3.5.1 — v3.6.5)**
+
+_Focus: Modern aesthetics, Cross device support, and cross-browser stability._
+
+- **What’s New:**
+  - **Firefox Android Version:** Introdued new Firfox android verrsion.
+  - **Product Logo:** Add QR Code Scanner and Generator logo in QR code center logo templates.
+  - **FireFox Feature:** Stop improving and fixing onscreen scanner feature because it have lot of limitations.
+  - **Camera:** New specialized android version have camera features to scan qr code by camera.
+  - **Past Image From Clipboard:** Android version have feature to past images from clipboard to scan on android.
+
+- **What’s Removed:**
+  - **OnScreen Firefox:** Stop improving and fixing onscreen scanner feature because it have lot of limitations.
+
 #### **The Fixing & Social Version (v3.2.0 — v3.5.0)**
 
 _Focus: Modern aesthetics, social integration, and cross-browser stability._
