@@ -1,0 +1,1098 @@
+const extApi = typeof browser !== "undefined" ? browser : chrome;
+
+const dndOverlay = document.getElementById("dnd-overlay");
+const qrcodee = document.getElementById("qrcode");
+const genbtn = document.getElementById("gen-btn");
+const downloadbtn = document.getElementById("download-btn");
+const clipboardbtn = document.getElementById("clip-btn");
+
+// const scanPageBtn = document.getElementById('scan-page-btn');
+const input = document.querySelector("#img-in");
+const outqrtxt = document.getElementById("out-qr-txt");
+const scanPreview = document.getElementById("scan-preview");
+const copybtn = document.getElementById("copy-btn");
+const actionbtn = document.getElementById("action-btn");
+const geoSearchInput = document.getElementById("geo-search");
+const geoLoader = document.getElementById("geo-loader");
+const scanActions = document.getElementById("scan-actions");
+const templateSelector = document.getElementById("template-selector");
+const shortenUrlCheck = document.getElementById("shorten-url");
+const compressTextCheck = document.getElementById("compress-text");
+const shortenLoader = document.getElementById("shorten-loader");
+const colorDarkInput = document.getElementById("color-dark");
+const colorDark2Input = document.getElementById("color-dark-2");
+const colorLightInput = document.getElementById("color-light");
+const transBgCheck = document.getElementById("trans-bg");
+const contrastWarning = document.getElementById("contrast-warning");
+const downloadFormat = document.getElementById("download-format");
+const logoUrlInput = document.getElementById('logo-url');
+const logoInput = document.getElementById('logo-input');
+const clearLogoBtn = document.getElementById('clear-logo-btn');
+const presetContainer = document.getElementById('logo-presets');
+const themeToggle = document.getElementById("theme-toggle");
+
+const camContainer = document.getElementById('camera-container');
+const video = document.getElementById('camera-feed');
+const camBtn = document.getElementById('open-camera-btn');
+const closeCam = document.getElementById('close-camera');
+
+
+const actionbtnSvg = {
+  link: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M318-120q-82 0-140-58t-58-140q0-40 15-76t43-64l134-133 56 56-134 134q-17 17-25.5 38.5T200-318q0 49 34.5 83.5T318-200q23 0 45-8.5t39-25.5l133-134 57 57-134 133q-28 28-64 43t-76 15Zm79-220-57-57 223-223 57 57-223 223Zm251-28-56-57 134-133q17-17 25-38t8-44q0-50-34-85t-84-35q-23 0-44.5 8.5T558-726L425-592l-57-56 134-134q28-28 64-43t76-15q82 0 139.5 58T839-641q0 39-14.5 75T782-502L648-368Z"/></svg>',
+  Location: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M536.5-503.5Q560-527 560-560t-23.5-56.5Q513-640 480-640t-56.5 23.5Q400-593 400-560t23.5 56.5Q447-480 480-480t56.5-23.5ZM480-186q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z"/></svg>',
+  sms: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M348.5-531.5Q360-543 360-560t-11.5-28.5Q337-600 320-600t-28.5 11.5Q280-577 280-560t11.5 28.5Q303-520 320-520t28.5-11.5Zm160 0Q520-543 520-560t-11.5-28.5Q497-600 480-600t-28.5 11.5Q440-577 440-560t11.5 28.5Q463-520 480-520t28.5-11.5Zm160 0Q680-543 680-560t-11.5-28.5Q657-600 640-600t-28.5 11.5Q600-577 600-560t11.5 28.5Q623-520 640-520t28.5-11.5ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/></svg>',
+  email: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z"/></svg>',
+};
+const builtInLogos = {
+  qrsng: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%234F46E5'><path d='M30.5 30.5h180v40h-140v100h140v40h-180zm205 0h40v80h-40zm66 0h180v180h-100v-40h60v-100h-100v20h-40z'/><path d='M90.5 90.5h60v60h-60zm271 0h60v60h-60zm-191 10h40v40h-40zm65 51h40v122h-84a396 396 0 0 0-1-39.5q22.494-.75 45-.5zm66 19h40v40h-40zm-271 63h40v40h-40zm81 0q20.006-.25 40 .5a396 396 0 0 0-1 39.5h-39zm204 0h85v40h-85zm126 0h40v40h-40zm-60 68h100v180h-180v-40h140v-100h-60zm-351 14h180v166h-60v-40h20v-86h-100v126h-40zm205 0h106v40h-66v46h-40z'/><path d='M361.5 361.5h60v60h-60zm-271 20h60v40h-20v60h-40zm145 60h40v40h-40z'/></svg>",
+  whatsapp: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325D366'><path d='M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.029 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z'/></svg>",
+  telegram: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23229ED9'><path d='M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.686c.223-.195-.054-.282-.346-.086l-6.4 4.025-2.76-.86c-.6-.188-.616-.602.126-.893l10.784-4.156c.5-.184.945.105.782 1.011z'/></svg>",
+  email: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23EA4335'><path d='M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/></svg>",
+  wifi: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234F46E5'><path d='M12 3C6.95 3 2.3 5.05-.07 8.16l2.12 2.12C3.84 7.74 7.69 6 12 6s8.16 1.74 9.95 4.28l2.12-2.12C21.7 5.05 17.05 3 12 3zm0 5C8.36 8 5.06 9.5 2.76 12.05l2.12 2.12C6.54 12.3 9.12 11 12 11s5.46 1.3 7.12 3.16l2.12-2.12C18.94 9.5 15.64 8 12 8zm0 5c-1.48 0-2.81.56-3.84 1.48l3.84 3.84 3.84-3.84C14.81 13.56 13.48 13 12 13z'/></svg>",
+  messenger: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300B2FF'><path d='M12 2C6.36 2 1.75 6.13 1.75 11.41c0 2.92 1.39 5.54 3.59 7.33v3.76l3.32-1.83c1.07.3 2.19.46 3.34.46 5.64 0 10.25-4.13 10.25-9.41S17.64 2 12 2zm1.09 12.56l-2.73-2.91-5.32 2.91 5.86-6.22 2.84 2.91 5.19-2.91-5.84 6.22z'/></svg>",
+  sms: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334B7F1'><path d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/></svg>",
+  vcard: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235F6368'><path d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm5 11H7v-1.5c0-1.66 3.33-2.5 5-2.5s5 .84 5 2.5V17z'/></svg>",
+  geo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23EA4335'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'/></svg>",
+  instagram: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23E1306C'><path d='M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z'/></svg>",
+  twitter: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235F6368'><path d='M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z'/></svg>",
+  youtube: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF0000'><path d='M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.5 12 3.5 12 3.5s-7.505 0-9.377.55a3.016 3.016 0 00-2.122 2.136C0 8.07 0 12 0 12s0 3.93-.502 5.814a3.016 3.016 0 002.122 2.136c1.871.55 9.376.55 9.376.55s7.505 0 9.377-.55a3.016 3.016 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/></svg>"
+};
+
+
+let currentCenterLogo = null;
+let currentQRSize = 300;
+let lastGeneratedText = "qr-code";
+let dragCounter = 0;
+let historyState = [];
+let currentHistView = "all";
+let stream = null;
+
+presetContainer.innerHTML = '';
+
+Object.keys(builtInLogos).forEach(key => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.title = key.charAt(0).toUpperCase() + key.slice(1);
+  btn.style.cssText = 'width:36px; height:36px; padding:4px; border:1px solid var(--border); border-radius:6px; background:var(--surface); cursor:pointer; flex-shrink:0;';
+
+  if (key === 'twitter' && document.body.getAttribute('data-theme') === 'dark') {
+    btn.innerHTML = `<img src="${builtInLogos[key].replace('%23000000', '%23FFFFFF')}" style="width:100%; height:100%; object-fit:contain;" />`;
+  } else {
+    btn.innerHTML = `<img src="${builtInLogos[key]}" style="width:100%; height:100%; object-fit:contain;" />`;
+  }
+
+  btn.onclick = () => {
+    logoUrlInput.value = '';
+    logoInput.value = '';
+    if (key === 'twitter' && document.body.getAttribute('data-theme') === 'dark') {
+      currentCenterLogo = builtInLogos[key].replace('%23000000', '%23FFFFFF');
+    } else {
+      currentCenterLogo = builtInLogos[key];
+    }
+    generateQr();
+  };
+  presetContainer.appendChild(btn);
+});
+
+templateSelector.addEventListener('change', (e) => {
+  const tpl = e.target.value;
+  logoUrlInput.value = '';
+  logoInput.value = '';
+  currentCenterLogo = builtInLogos[tpl] || null;
+  generateQr();
+});
+
+logoInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (re) => {
+      currentCenterLogo = re.target.result;
+      logoUrlInput.value = '';
+      generateQr();
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+logoUrlInput.addEventListener('input', (e) => {
+  const val = e.target.value.trim();
+  if (val) {
+    currentCenterLogo = val;
+    logoInput.value = '';
+    generateQr();
+  }
+});
+
+clearLogoBtn.addEventListener('click', () => {
+  currentCenterLogo = null;
+  logoInput.value = '';
+  logoUrlInput.value = '';
+  generateQr();
+});
+
+
+let qrCodeInstance = new QRCodeStyling({
+  width: currentQRSize,
+  height: currentQRSize,
+  margin: 5,
+  type: "canvas",
+  qrOptions: { errorCorrectionLevel: "H" }
+});
+
+
+if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+  document.body.setAttribute("data-theme", "dark");
+  themeToggle.innerHTML =
+    '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Zm-10-270Z"/></svg>';
+}
+
+themeToggle.addEventListener("click", () => {
+  if (document.body.getAttribute("data-theme") === "dark") {
+    document.body.removeAttribute("data-theme");
+    localStorage.setItem("theme", "light");
+    themeToggle.innerHTML =
+      '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M565-395q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35Zm-226.5 56.5Q280-397 280-480t58.5-141.5Q397-680 480-680t141.5 58.5Q680-563 680-480t-58.5 141.5Q563-280 480-280t-141.5-58.5ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Zm326-268Z"/></svg>';
+  } else {
+    document.body.setAttribute("data-theme", "dark");
+    localStorage.setItem("theme", "dark");
+    themeToggle.innerHTML =
+      '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Zm-10-270Z"/></svg>';
+  }
+});
+
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach((b) => b.classList.remove("active"));
+    document
+      .querySelectorAll(".tab-content")
+      .forEach((c) => c.classList.remove("active"));
+    btn.classList.add("active");
+    document
+      .getElementById(btn.getAttribute("data-target"))
+      .classList.add("active");
+  });
+});
+
+templateSelector.addEventListener("change", (e) => {
+  document
+    .querySelectorAll(".template-section")
+    .forEach((el) => el.classList.remove("active"));
+  document.getElementById(`tpl-${e.target.value}`).classList.add("active");
+});
+
+function getTemplateText() {
+  const t = templateSelector.value;
+  if (t === "text") return document.getElementById("qr-txt").value.trim();
+  if (t === "wifi") {
+    const s = document.getElementById("wifi-ssid").value.trim();
+    const p = document.getElementById("wifi-pass").value.trim();
+    return s ? `WIFI:T:${document.getElementById("wifi-type").value};S:${s};P:${p};;` : "";
+  }
+  if (t === "vcard") {
+    const n = document.getElementById("vc-name").value.trim(),
+      p = document.getElementById("vc-phone").value.trim(),
+      e = document.getElementById("vc-email").value.trim();
+    return n ? `BEGIN:VCARD\nVERSION:3.0\nFN:${n}\nTEL:${p}\nEMAIL:${e}\nEND:VCARD` : "";
+  }
+  if (t === "email") {
+    const to = document.getElementById("em-to").value.trim(),
+      sub = document.getElementById("em-sub").value.trim(),
+      body = document.getElementById("em-body").value.trim();
+    return to ? `mailto:${to}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}` : "";
+  }
+  if (t === "sms") return `smsto:${document.getElementById("sms-phone").value.trim()}:${document.getElementById("sms-msg").value.trim()}`;
+  if (t === 'whatsapp') {
+    const waPhone = document.getElementById('wa-phone').value.trim().replace(/[^0-9]/g, '');
+    const waMsg = document.getElementById('wa-msg').value.trim();
+    return waPhone ? `https://wa.me/${waPhone}${waMsg ? '?text=' + encodeURIComponent(waMsg) : ''}` : '';
+  }
+  if (t === 'telegram') {
+    let tgUser = document.getElementById('tg-user').value.trim().replace('@', '');
+    const tgMsg = document.getElementById('tg-msg').value.trim();
+    if (!tgUser) return '';
+    return tgMsg ? `https://t.me/share/url?url=${tgUser}&text=${encodeURIComponent(tgMsg)}` : `https://t.me/${tgUser}`;
+  }
+  if (t === 'messenger') {
+    const fbUser = document.getElementById('fb-user').value.trim();
+    return fbUser ? `https://m.me/${fbUser}` : '';
+  }
+  if (t === "geo") return `geo:${document.getElementById("geo-lat").value},${document.getElementById("geo-lng").value}`;
+  return "";
+}
+
+geoSearchInput.addEventListener("change", async (e) => {
+  const query = e.target.value.trim();
+  if (!query) return;
+
+  geoLoader.style.display = "block";
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    if (data && data.length > 0) {
+      document.getElementById("geo-lat").value = parseFloat(data[0].lat).toFixed(6);
+      document.getElementById("geo-lng").value = parseFloat(data[0].lon).toFixed(6);
+    } else {
+      alert("Location not found. Please try a different city name.");
+    }
+  } catch (err) {
+    console.error("Geocoding failed:", err);
+  }
+  geoLoader.style.display = "none";
+});
+
+function checkContrast() {
+  const hexToRgb = (hex) => [
+    parseInt(hex.slice(1, 3), 16),
+    parseInt(hex.slice(3, 5), 16),
+    parseInt(hex.slice(5, 7), 16),
+  ];
+  const lum = ([r, g, b]) => {
+    let a = [r, g, b].map((v) => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+  };
+  const l1 = lum(hexToRgb(colorLightInput.value));
+  const l2 = lum(hexToRgb(colorDarkInput.value));
+  const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+
+  if (!transBgCheck.checked && ratio < 3.0) {
+    contrastWarning.innerText = `⚠️ Low Contrast (${ratio.toFixed(1)}:1). QR may not scan well.`;
+    contrastWarning.style.display = "block";
+  } else {
+    contrastWarning.style.display = "none";
+  }
+} [colorDarkInput, colorLightInput, transBgCheck].forEach((el) =>
+  el.addEventListener("change", checkContrast),
+);
+
+async function shortenUrl(longUrl) {
+  const apis = [
+    "R6TkierZYnp2nPqoz5qE1r38SVwEwjPc7QT9zR7hvP0wI0JvUsU7bwzCVWLw",
+    "kJV3c2Pd5RdKpaWkqf45Mo4jZf7VskWnrwzq7pOCEs0vhaauzOZwKjEEgJAo",
+  ];
+  for (let token of apis) {
+    try {
+      let res = await fetch("https://api.tinyurl.com/create", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ url: longUrl, domain: "tinyurl.com" }),
+      });
+      if (res.ok) return (await res.json()).data.tiny_url;
+    } catch (e) { }
+  }
+  return longUrl;
+}
+
+compressTextCheck.addEventListener("change", () => {
+  if (compressTextCheck.checked) shortenUrlCheck.checked = false;
+});
+shortenUrlCheck.addEventListener("change", () => {
+  if (shortenUrlCheck.checked) compressTextCheck.checked = false;
+});
+
+async function generateQr() {
+  let txt = getTemplateText();
+  if (!txt) return;
+
+  if (templateSelector.value === "text") {
+    if (compressTextCheck.checked) {
+      shortenLoader.style.display = "inline";
+      const payloadUrl = `https://pro-bandey.github.io/QR-SnG/?theme=dark&txt=${encodeURIComponent(txt)}`;
+      txt = await shortenUrl(payloadUrl);
+      shortenLoader.style.display = "none";
+    } else if (shortenUrlCheck.checked && txt.startsWith("http")) {
+      shortenLoader.style.display = "inline";
+      txt = await shortenUrl(txt);
+      shortenLoader.style.display = "none";
+    }
+  }
+
+  lastGeneratedText = txt;
+
+  const shapeType = document.getElementById('qr-shape').value;
+  const eyeType = document.getElementById('eye-shape').value;
+  const innerEyeType = document.getElementById('inner-eye-shape').value;
+
+  let colorConfig = {};
+  if (colorDarkInput.value !== colorDark2Input.value) {
+    colorConfig = {
+      gradient: {
+        type: "linear",
+        rotation: Math.PI / 4,
+        colorStops: [
+          { offset: 0, color: colorDarkInput.value },
+          { offset: 1, color: colorDark2Input.value }
+        ]
+      }
+    };
+  } else {
+    colorConfig = { color: colorDarkInput.value };
+  }
+
+  qrCodeInstance.update({
+    width: currentQRSize,
+    height: currentQRSize,
+    data: txt,
+    margin: 5,
+    qrOptions: {
+      mode: "Byte",
+      errorCorrectionLevel: currentCenterLogo ? "Q" : "M"
+    },
+    image: currentCenterLogo,
+    imageOptions: {
+      crossOrigin: "anonymous",
+      margin: 2,
+      imageSize: 0.4,
+      hideBackgroundDots: true
+    },
+    dotsOptions: { type: shapeType, ...colorConfig },
+    cornersSquareOptions: { type: eyeType, ...colorConfig },
+    cornersDotOptions: { type: innerEyeType, ...colorConfig },
+    backgroundOptions: {
+      color: transBgCheck.checked ? "transparent" : colorLightInput.value,
+    }
+  });
+
+  qrcodee.innerHTML = '';
+  qrcodee.title = "Output QR Code";
+  qrCodeInstance.append(qrcodee);
+
+  saveHistory('Generated At', lastGeneratedText);
+}
+
+genbtn.addEventListener("click", generateQr);
+document.getElementById('qr-shape').addEventListener('change', generateQr);
+document.getElementById('eye-shape').addEventListener('change', generateQr);
+document.getElementById('inner-eye-shape').addEventListener('change', generateQr);
+
+function getSmartFilename(ext) {
+  let name = lastGeneratedText
+    .replace(/^https?:\/\//i, "")
+    .replace(/^www\./i, "");
+  name = name
+    .replace(/[\/\\?%*:|"<> \n]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+  if (!name) name = "qr-code";
+  if (name.length > 50) name = name.substring(0, 50).replace(/-$/, "");
+  return `QR-SnG_${name}.${ext}`;
+}
+
+downloadbtn.addEventListener('click', async () => {
+  if (!lastGeneratedText || lastGeneratedText === "qr-code") return;
+
+  const originalFmt = downloadFormat.value;
+  const libraryFmt = originalFmt === 'jpg' ? 'jpeg' : originalFmt;
+  const filename = getSmartFilename(originalFmt);
+
+  try {
+    const blob = await qrCodeInstance.getRawData(libraryFmt);
+    if (!blob) return;
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (err) {
+    console.error("Download failed:", err);
+    alert("Download failed. Please try a different format.");
+  }
+});
+
+
+
+
+camBtn.onclick = async () => {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" }
+    });
+    video.srcObject = stream;
+    video.play();
+    camContainer.style.display = 'block';
+    scanPreview.style.display = 'none';
+    requestAnimationFrame(tick);
+  } catch (err) {
+    alert("Camera access denied or not available.");
+  }
+};
+
+function tick() {
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    const canvas = document.getElementById('camera-canvas');
+    canvas.height = video.videoHeight;
+    canvas.width = video.videoWidth;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+    if (code) {
+      stopCamera();
+      outqrtxt.innerHTML = "";
+      outqrtxt.appendChild(parseScanResult(code.data));
+      saveHistory("Camera Scan", code.data);
+      return;
+    }
+  }
+  if (stream) requestAnimationFrame(tick);
+}
+
+function stopCamera() {
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+  camContainer.style.display = 'none';
+}
+closeCam.onclick = stopCamera;
+
+
+/** 2. SMART PASTE (IMAGE OR TEXT) **/
+const pasteBtn = document.getElementById('past-from-clipboard-btn');
+
+pasteBtn.onclick = async () => {
+  try {
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+      // Check for Image
+      const imageType = item.types.find(type => type.startsWith('image/'));
+      if (imageType) {
+        const blob = await item.getType(imageType);
+        const file = new File([blob], "pasted-img.png", { type: imageType });
+        scanQR(file);
+        return;
+      }
+    }
+    // Fallback to Text
+    const text = await navigator.clipboard.readText();
+    if (text) {
+      document.querySelector('[data-target="tab-gen"]').click();
+      document.getElementById("qr-txt").value = text;
+      generateQr();
+    }
+  } catch (err) {
+    // Firefox may require text fallback if 'read' permission is complex
+    const text = await navigator.clipboard.readText();
+    if (text) {
+      document.querySelector('[data-target="tab-gen"]').click();
+      document.getElementById("qr-txt").value = text;
+      generateQr();
+    }
+  }
+};
+
+
+
+
+
+
+function parseScanResult(txt) {
+  scanActions.style.display = "flex";
+  actionbtn.style.display = "none";
+  actionbtn.onclick = null;
+  actionbtn.innerHTML = "";
+
+  const container = document.createElement("div");
+
+  if (txt.startsWith("WIFI:")) {
+    const type = (txt.match(/T:(.*?);/) || [])[1] || "";
+    const ssid = (txt.match(/S:(.*?);/) || [])[1] || "";
+    const pass = (txt.match(/P:(.*?);/) || [])[1] || "";
+
+    container.insertAdjacentHTML(
+      "beforeend",
+      `<strong>Wi-Fi Network</strong><br><b>Name:</b> <span class="v-ssid"></span><br><b>Pass:</b> <span class="v-pass"></span><br><b>Security:</b> <span class="v-type"></span>`,
+    );
+    container.querySelector(".v-ssid").textContent = ssid;
+    if (pass) container.querySelector(".v-pass").textContent = pass;
+    else
+      container
+        .querySelector(".v-pass")
+        .insertAdjacentHTML("beforeend", "<i>None</i>");
+    container.querySelector(".v-type").textContent = type;
+    return container;
+  }
+  if (txt.startsWith("BEGIN:VCARD")) {
+    const n = (txt.match(/FN:(.*)/) || [])[1] || "";
+    const tel = (txt.match(/TEL:(.*)/) || [])[1] || "";
+    const em = (txt.match(/EMAIL:(.*)/) || [])[1] || "";
+
+    container.insertAdjacentHTML(
+      "beforeend",
+      `<strong>Contact Card</strong><br><b>Name:</b> <span class="v-n"></span><br><b>Phone:</b> <a class="v-tel"></a><br><b>Email:</b> <a class="v-em" target="_blank"></a>`,
+    );
+    container.querySelector(".v-n").textContent = n;
+
+    const telEl = container.querySelector(".v-tel");
+    telEl.href = `tel:${tel}`;
+    telEl.textContent = tel;
+
+    const emEl = container.querySelector(".v-em");
+    emEl.href = `mailto:${em}`;
+    emEl.textContent = em;
+    return container;
+  }
+
+  if (txt.startsWith("http://wa.me") || txt.startsWith("https://wa.me")) {
+    actionbtn.style.display = "flex";
+    actionbtn.innerHTML = `${actionbtnSvg.sms} Send To WA`;
+    actionbtn.onclick = () => {
+      if (chrome?.tabs) chrome.tabs.create({ url: txt });
+      else window.open(txt, "_blank");
+    };
+    return `<strong>URL Link</strong><br><a href="${txt}" target="_blank">${txt}</a>`;
+  }
+  if (txt.startsWith("http://t.me") || txt.startsWith("https://t.me")) {
+    actionbtn.style.display = "flex";
+    actionbtn.innerHTML = `${actionbtnSvg.sms} Send To Tele`;
+    actionbtn.onclick = () => {
+      if (chrome?.tabs) chrome.tabs.create({ url: txt });
+      else window.open(txt, "_blank");
+    };
+    return `<strong>URL Link</strong><br><a href="${txt}" target="_blank">${txt}</a>`;
+  }
+  if (txt.startsWith("http://") || txt.startsWith("https://") || txt.startsWith("chrome:") || txt.startsWith("about:")) {
+    actionbtn.style.display = "flex";
+    actionbtn.appendChild(createSafeSvgIcon(actionbtnSvg.link));
+    actionbtn.appendChild(document.createTextNode(" Open Link"));
+    actionbtn.onclick = () => {
+      if (extApi && extApi.tabs) extApi.tabs.create({ url: txt });
+      else window.open(txt, "_blank");
+    };
+
+    container.insertAdjacentHTML(
+      "beforeend",
+      `<strong>URL Link</strong><br> <a class="v-link" target="_blank"></a>`,
+    );
+    const linkEl = container.querySelector(".v-link");
+    linkEl.href = txt;
+    linkEl.textContent = txt;
+    return container;
+  }
+  if (txt.startsWith("geo:")) {
+    actionbtn.style.display = "flex";
+    actionbtn.appendChild(createSafeSvgIcon(actionbtnSvg.Location));
+    actionbtn.appendChild(document.createTextNode(" Open Location"));
+    actionbtn.onclick = () => {
+      if (extApi && extApi.tabs) extApi.tabs.create({ url: txt });
+      else window.open(txt, "_blank");
+    };
+
+    container.insertAdjacentHTML(
+      "beforeend",
+      `<strong>Geo Location</strong><br> <a class="v-link" target="_blank"></a>`,
+    );
+    const linkEl = container.querySelector(".v-link");
+    linkEl.href = txt;
+    linkEl.textContent = txt;
+    return container;
+  }
+  if (txt.startsWith("mailto:")) {
+    actionbtn.style.display = "flex";
+    actionbtn.appendChild(createSafeSvgIcon(actionbtnSvg.email));
+    actionbtn.appendChild(document.createTextNode(" Send Email"));
+    actionbtn.onclick = () => {
+      if (extApi && extApi.tabs) extApi.tabs.create({ url: txt });
+      else window.open(txt, "_blank");
+    };
+
+    container.insertAdjacentHTML(
+      "beforeend",
+      `<strong>Email Link</strong><br><a class="v-link" target="_blank"></a>`,
+    );
+    const linkEl = container.querySelector(".v-link");
+    linkEl.href = txt;
+    linkEl.textContent = txt;
+    return container;
+  }
+  if (txt.startsWith("smsto:")) {
+    actionbtn.style.display = "flex";
+    actionbtn.appendChild(createSafeSvgIcon(actionbtnSvg.sms));
+    actionbtn.appendChild(document.createTextNode(" Send SMS"));
+    actionbtn.onclick = () => {
+      if (extApi && extApi.tabs) extApi.tabs.create({ url: txt });
+      else window.open(txt, "_blank");
+    };
+
+    container.insertAdjacentHTML(
+      "beforeend",
+      `<strong>SMS Link</strong><br><a class="v-link" target="_blank"></a>`,
+    );
+    const linkEl = container.querySelector(".v-link");
+    linkEl.href = txt;
+    linkEl.textContent = txt;
+    return container;
+  }
+
+  container.insertAdjacentHTML(
+    "beforeend",
+    `<strong>Text Result</strong><br> <span class="v-txt"></span>`,
+  );
+  container.querySelector(".v-txt").textContent = txt;
+  return container;
+}
+
+function scanQR(file) {
+  outqrtxt.innerHTML = "";
+  outqrtxt.insertAdjacentHTML("beforeend", "<i>Scanning...</i>");
+  scanActions.style.display = "none";
+
+  const reader = new FileReader();
+
+  reader.onload = (readerEvent) => {
+    const img = new Image();
+
+    img.onload = () => {
+      scanPreview.src = img.src;
+      scanPreview.style.display = "block";
+
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth || img.width;
+      canvas.height = img.naturalHeight || img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      try {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const qrResult = jsQR(imageData.data, canvas.width, canvas.height, { inversionAttempts: "attemptBoth" });
+
+        if (qrResult && qrResult.data) {
+          outqrtxt.innerHTML = "";
+          outqrtxt.appendChild(parseScanResult(qrResult.data));
+          outqrtxt.setAttribute("data-raw", qrResult.data);
+          saveHistory("Scanned", qrResult.data);
+          scanActions.style.display = "flex";
+        } else {
+          outqrtxt.innerHTML = "";
+          outqrtxt.insertAdjacentHTML(
+            "beforeend",
+            '<span style="color:red">No QR code found. Try a clearer image.</span>',
+          );
+        }
+      } catch (err) {
+        outqrtxt.innerHTML = "";
+        outqrtxt.insertAdjacentHTML(
+          "beforeend",
+          '<span style="color:red">Scanning failed.</span>',
+        );
+        console.error(err);
+      }
+    };
+    img.onerror = () => {
+      outqrtxt.innerHTML = "";
+      outqrtxt.insertAdjacentHTML(
+        "beforeend",
+        '<span style="color:red">Failed to load image.</span>',
+      );
+    };
+
+    img.src = readerEvent.target.result;
+  };
+
+  reader.onerror = () => {
+    outqrtxt.innerHTML = "";
+    outqrtxt.insertAdjacentHTML(
+      "beforeend",
+      '<span style="color:red">Failed to read file.</span>',
+    );
+  };
+
+  reader.readAsDataURL(file);
+}
+
+input.addEventListener("change", (e) => {
+  if (e.target.files.length > 0) scanQR(e.target.files[0]);
+});
+
+copybtn.addEventListener("click", () => {
+  const t = outqrtxt.getAttribute("data-raw");
+  if (t) navigator.clipboard.writeText(t).catch((e) => console.error(e));
+});
+
+clipboardbtn.addEventListener("click", () => {
+  navigator.clipboard.readText().then((txt) => {
+    if (txt) {
+      document.querySelector('[data-target="tab-gen"]').click();
+      templateSelector.value = "text";
+      templateSelector.dispatchEvent(new Event("change"));
+      document.getElementById("qr-txt").value = txt;
+      generateQr();
+    }
+  });
+});
+/*
+if (scanPageBtn) {
+  scanPageBtn.addEventListener('click', () => {
+    extApi.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+      if (tabs && tabs[0]) {
+        extApi.tabs.sendMessage(tabs[0].id, { action: "start_selection" }).catch(err => {
+          alert("Cannot scan this page. \n Most of time this feature not working on Firefox \n in future we fully fix this issue");
+        });
+      }
+    });
+  });
+}
+*/
+
+function fetchAndScanExternalImage(url) {
+  outqrtxt.textContent = "";
+  const scanningText = document.createElement("i");
+  scanningText.textContent = "Fetching image securely...";
+  outqrtxt.appendChild(scanningText);
+  scanActions.style.display = "none";
+
+  extApi.runtime.sendMessage({ action: "fetch_image", url: url }, (response) => {
+    if (response && response.dataUrl) {
+      fetch(response.dataUrl).then(r => r.blob()).then(scanQR);
+    } else {
+      outqrtxt.textContent = "";
+      const errSpan = document.createElement("span");
+      errSpan.style.color = "red";
+      errSpan.textContent = "Failed to load external image. Try saving the image to your computer first.";
+      outqrtxt.appendChild(errSpan);
+    }
+  });
+}
+
+
+window.addEventListener("dragenter", (e) => {
+  e.preventDefault();
+  dragCounter++;
+  if (dragCounter === 1) dndOverlay.classList.add("active");
+});
+
+window.addEventListener("dragleave", (e) => {
+  e.preventDefault();
+  dragCounter--;
+  if (dragCounter === 0) dndOverlay.classList.remove("active");
+});
+
+window.addEventListener("dragover", (e) => {
+  e.preventDefault();
+});
+
+window.addEventListener("drop", async (e) => {
+  e.preventDefault();
+  dragCounter = 0;
+  dndOverlay.classList.remove("active");
+
+  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+    const file = e.dataTransfer.files[0];
+    if (file.type.startsWith("image/") || file.name.match(/\.(png|jpe?g|webp|gif|bmp)$/i)) {
+      document.querySelector('[data-target="tab-scan"]').click();
+      scanQR(file);
+    }
+    return;
+  }
+
+  const htmlData = e.dataTransfer.getData("text/html");
+  const uriList = e.dataTransfer.getData("text/uri-list");
+  const textData = e.dataTransfer.getData("text/plain");
+
+  let imageUrl = null;
+
+  if (htmlData && htmlData.toLowerCase().includes("<img")) {
+    const match = htmlData.match(/src=["']([^"']+)["']/i);
+    if (match && match[1]) {
+      imageUrl = match[1];
+    }
+  } else if (uriList && uriList.match(/\.(png|jpe?g|webp|gif|bmp)(\?.*)?$/i)) {
+    imageUrl = uriList;
+  }
+  if (imageUrl) {
+    document.querySelector('[data-target="tab-scan"]').click();
+    fetchAndScanExternalImage(imageUrl);
+    return;
+  }
+
+  const finalString = textData || uriList;
+  if (finalString) {
+    triggerGenerate(finalString);
+  } else if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+    const item = Array.from(e.dataTransfer.items).find((i) => i.kind === "string" && i.type === "text/plain");
+    if (item) {
+      item.getAsString((txt) => {
+        if (txt) triggerGenerate(txt);
+      });
+    }
+  }
+
+  function triggerGenerate(txt) {
+    document.querySelector('[data-target="tab-gen"]').click();
+    templateSelector.value = "text";
+    templateSelector.dispatchEvent(new Event("change"));
+    document.getElementById("qr-txt").value = txt;
+    generateQr();
+  }
+});
+
+
+
+
+
+function manageHistoryStorage() {
+  const now = Date.now();
+  historyState = historyState.filter((item) => {
+    if (item.deletedAt && now - item.deletedAt > 30 * 24 * 60 * 60 * 1000)
+      return false;
+    return true;
+  });
+  if (extApi && extApi.storage)
+    extApi.storage.local.set({ appHistory: historyState });
+  renderHistory();
+}
+
+function loadHistory() {
+  if (extApi && extApi.storage && extApi.storage.local) {
+    extApi.storage.local.get(["appHistory"], (res) => {
+      historyState = res.appHistory || [];
+      manageHistoryStorage();
+    });
+  }
+}
+
+function saveHistory(type, data) {
+  if (!data) return;
+  const activeItems = historyState.filter((i) => !i.deletedAt);
+  if (activeItems.length > 0 && activeItems[0].data === data) return;
+
+  historyState.unshift({
+    id: Date.now(),
+    type,
+    data,
+    date: new Date().toLocaleDateString(),
+    isFav: false,
+    deletedAt: null,
+  });
+  manageHistoryStorage();
+}
+
+document.querySelectorAll(".hist-tab").forEach((t) => {
+  t.addEventListener("click", () => {
+    document
+      .querySelectorAll(".hist-tab")
+      .forEach((b) => b.classList.remove("active"));
+    t.classList.add("active");
+    currentHistView = t.getAttribute("data-view");
+    renderHistory();
+  });
+});
+
+document.getElementById("empty-bin-btn").addEventListener("click", () => {
+  historyState = historyState.filter((i) => !i.deletedAt);
+  manageHistoryStorage();
+});
+
+function toggleFav(id) {
+  const idx = historyState.findIndex((i) => i.id === id);
+  if (idx > -1) historyState[idx].isFav = !historyState[idx].isFav;
+  manageHistoryStorage();
+}
+function moveToBin(id) {
+  const idx = historyState.findIndex((i) => i.id === id);
+  if (idx > -1) historyState[idx].deletedAt = Date.now();
+  manageHistoryStorage();
+}
+function restoreItem(id) {
+  const idx = historyState.findIndex((i) => i.id === id);
+  if (idx > -1) historyState[idx].deletedAt = null;
+  manageHistoryStorage();
+}
+function deletePerm(id) {
+  historyState = historyState.filter((i) => i.id !== id);
+  manageHistoryStorage();
+}
+function useItem(id) {
+  const item = historyState.find((i) => i.id === id);
+  if (!item) return;
+  document.querySelector('[data-target="tab-gen"]').click();
+  templateSelector.value = "text";
+  templateSelector.dispatchEvent(new Event("change"));
+  document.getElementById("qr-txt").value = item.data;
+  generateQr();
+}
+
+document.getElementById("history-list").addEventListener("click", (e) => {
+  const btn = e.target.closest(".action-btn");
+  if (!btn) return;
+
+  const action = btn.getAttribute("data-action");
+  const id = parseInt(btn.getAttribute("data-id"));
+
+  if (action === "fav") toggleFav(id);
+  else if (action === "bin") moveToBin(id);
+  else if (action === "restore") restoreItem(id);
+  else if (action === "delete") deletePerm(id);
+  else if (action === "use") useItem(id);
+});
+
+function renderHistory() {
+  const list = document.getElementById("history-list");
+  const emptyRow = document.getElementById("empty-bin-row");
+  list.innerHTML = "";
+
+  let filtered = historyState;
+  if (currentHistView === "all") {
+    filtered = historyState.filter((i) => !i.deletedAt);
+    emptyRow.style.display = "none";
+  }
+  if (currentHistView === "fav") {
+    filtered = historyState.filter((i) => !i.deletedAt && i.isFav);
+    emptyRow.style.display = "none";
+  }
+  if (currentHistView === "bin") {
+    filtered = historyState.filter((i) => i.deletedAt);
+    emptyRow.style.display = filtered.length ? "block" : "none";
+  }
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div style="text-align:center;font-size:12px;color:var(--text-muted);padding:20px;">No items found.</div>`;
+    return;
+  }
+
+  filtered.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "history-item";
+
+    const headerDiv = document.createElement("div");
+    headerDiv.className = "history-header";
+
+    const badgeSpan = document.createElement("span");
+    badgeSpan.className = "history-badge";
+    badgeSpan.textContent = `${item.type} • ${item.date}`;
+
+    const actionsDiv = document.createElement("div");
+    actionsDiv.className = "history-actions";
+
+    function createBtn(action, id, title, color, svgData) {
+      const btn = document.createElement("button");
+      btn.className = "icon-btn action-btn";
+      btn.setAttribute("data-action", action);
+      btn.setAttribute("data-id", id);
+      btn.title = title;
+      if (color) btn.style.color = color;
+      btn.appendChild(createSafeSvgIcon(svgData));
+      return btn;
+    }
+
+    const svgIcons = {
+      restore: '<svg  xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48752C"><path d="M444-312h72v-150l57 57 51-51-144-144-144 144 51 51 57-57v150ZM312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg>',
+      delete: '<svg  xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA3323"><path d="m400-325 80-80 80 80 51-51-80-80 80-80-51-51-80 80-80-80-51 51 80 80-80 80 51 51Zm-88 181q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg>',
+      favOn: '<svg  xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA33F7"><path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z"/></svg>',
+      favOff: '<svg  xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M440-501Zm0 381L313-234q-72-65-123.5-116t-85-96q-33.5-45-49-87T40-621q0-94 63-156.5T260-840q52 0 99 22t81 62q34-40 81-62t99-22q81 0 136 45.5T831-680h-85q-18-40-53-60t-73-20q-51 0-88 27.5T463-660h-46q-31-45-70.5-72.5T260-760q-57 0-98.5 39.5T120-621q0 33 14 67t50 78.5q36 44.5 98 104T440-228q26-23 61-53t56-50l9 9 19.5 19.5L605-283l9 9q-22 20-56 49.5T498-172l-58 52Zm280-160v-120H600v-80h120v-120h80v120h120v80H800v120h-80Z"/></svg>',
+      use: '<svg  xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M314-115q-104-48-169-145T80-479q0-26 2.5-51t8.5-49l-46 27-40-69 191-110 110 190-70 40-54-94q-11 27-16.5 56t-5.5 60q0 97 53 176.5T354-185l-40 70Zm306-485v-80h109q-46-57-111-88.5T480-800q-55 0-104 17t-90 48l-40-70q50-35 109-55t125-20q79 0 151 29.5T760-765v-55h80v220H620ZM594 0 403-110l110-190 69 40-57 98q118-17 196.5-107T800-480q0-11-.5-20.5T797-520h81q1 10 1.5 19.5t.5 20.5q0 135-80.5 241.5T590-95l44 26-40 69Z"/></svg>',
+      bin: '<svg  xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA3323"><path d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z"/></svg>',
+    };
+
+    if (item.deletedAt) {
+      actionsDiv.appendChild(createBtn("restore", item.id, "Restore", null, svgIcons.restore));
+      actionsDiv.appendChild(createBtn("delete", item.id, "Delete Forever", "var(--danger)", svgIcons.delete));
+    } else {
+      actionsDiv.appendChild(createBtn("fav", item.id, "Favorite", null, item.isFav ? svgIcons.favOn : svgIcons.favOff));
+      actionsDiv.appendChild(createBtn("use", item.id, "Re-Use", null, svgIcons.use));
+      actionsDiv.appendChild(createBtn("bin", item.id, "Move to Trash", null, svgIcons.bin));
+    }
+
+    headerDiv.appendChild(badgeSpan);
+    headerDiv.appendChild(actionsDiv);
+
+    const textDiv = document.createElement("div");
+    textDiv.className = "history-text";
+    textDiv.title = item.data;
+    textDiv.textContent = item.data;
+
+    div.appendChild(headerDiv);
+    div.appendChild(textDiv);
+    list.appendChild(div);
+  });
+}
+function createSafeSvgIcon(svgStr) {
+  return new DOMParser().parseFromString(svgStr, "image/svg+xml").documentElement;
+}
+
+loadHistory();
+
+
+if (extApi && extApi.storage && extApi.storage.local) {
+  extApi.storage.local.get(["qrurl", "qrimageurl"], (result) => {
+    if (result.qrurl) {
+      document.querySelector('[data-target="tab-gen"]').click();
+      templateSelector.value = "text";
+      templateSelector.dispatchEvent(new Event("change"));
+      document.getElementById("qr-txt").value = result.qrurl;
+      generateQr();
+      extApi.storage.local.remove("qrurl");
+    }
+    if (result.qrimageurl) {
+      document.querySelector('[data-target="tab-scan"]').click();
+      fetchAndScanExternalImage(result.qrimageurl);
+      extApi.storage.local.remove("qrimageurl");
+    }
+  });
+  extApi.storage.onChanged.addListener((changes, area) => {
+    if (area === "local") {
+      if (changes["qrurl"] && changes["qrurl"].newValue) {
+        document.querySelector('[data-target="tab-gen"]').click();
+        templateSelector.value = "text";
+        templateSelector.dispatchEvent(new Event("change"));
+        document.getElementById("qr-txt").value = changes["qrurl"].newValue;
+        generateQr();
+        extApi.storage.local.remove("qrurl");
+      }
+      if (changes["qrimageurl"] && changes["qrimageurl"].newValue) {
+        document.querySelector('[data-target="tab-scan"]').click();
+        fetchAndScanExternalImage(changes["qrimageurl"].newValue);
+        extApi.storage.local.remove("qrimageurl");
+      }
+      if (changes["qrAreaScan"] && changes["qrAreaScan"].newValue) {
+        const data = changes["qrAreaScan"].newValue;
+        document.querySelector('[data-target="tab-scan"]').click();
+
+        outqrtxt.innerHTML = "";
+        outqrtxt.insertAdjacentHTML("beforeend", "<i>Cropping & Scanning...</i>");
+        scanActions.style.display = 'none';
+
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = data.rect.w;
+          canvas.height = data.rect.h;
+          const ctx = canvas.getContext("2d", { willReadFrequently: true });
+          ctx.drawImage(img, data.rect.x, data.rect.y, data.rect.w, data.rect.h, 0, 0, data.rect.w, data.rect.h);
+          scanPreview.src = canvas.toDataURL("image/png");
+          scanPreview.style.display = 'block';
+          try {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const qrResult = jsQR(imageData.data, canvas.width, canvas.height, { inversionAttempts: "attemptBoth" });
+            if (qrResult && qrResult.data) {
+              outqrtxt.innerHTML = "";
+              outqrtxt.appendChild(parseScanResult(qrResult.data));
+              outqrtxt.setAttribute('data-raw', qrResult.data);
+              saveHistory('Scanned (Screen)', qrResult.data);
+            } else {
+              outqrtxt.innerHTML = "";
+              outqrtxt.insertAdjacentHTML("beforeend", '<span style="color:red">No QR found in selected area.</span>');
+            }
+          } catch (e) {
+            outqrtxt.innerHTML = "";
+            outqrtxt.insertAdjacentHTML("beforeend", '<span style="color:red">Error scanning area.</span>');
+          }
+          extApi.storage.local.remove("qrAreaScan");
+        };
+        img.src = data.imgUrl;
+      }
+    }
+  });
+}
