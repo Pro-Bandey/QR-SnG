@@ -6,7 +6,6 @@ const genbtn = document.getElementById("gen-btn");
 const downloadbtn = document.getElementById("download-btn");
 const clipboardbtn = document.getElementById("clip-btn");
 
-// const scanPageBtn = document.getElementById('scan-page-btn');
 const input = document.querySelector("#img-in");
 const outqrtxt = document.getElementById("out-qr-txt");
 const scanPreview = document.getElementById("scan-preview");
@@ -31,12 +30,6 @@ const clearLogoBtn = document.getElementById('clear-logo-btn');
 const presetContainer = document.getElementById('logo-presets');
 const themeToggle = document.getElementById("theme-toggle");
 
-const camContainer = document.getElementById('camera-container');
-const video = document.getElementById('camera-feed');
-const camBtn = document.getElementById('open-camera-btn');
-const closeCam = document.getElementById('close-camera');
-
-
 const actionbtnSvg = {
   link: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M318-120q-82 0-140-58t-58-140q0-40 15-76t43-64l134-133 56 56-134 134q-17 17-25.5 38.5T200-318q0 49 34.5 83.5T318-200q23 0 45-8.5t39-25.5l133-134 57 57-134 133q-28 28-64 43t-76 15Zm79-220-57-57 223-223 57 57-223 223Zm251-28-56-57 134-133q17-17 25-38t8-44q0-50-34-85t-84-35q-23 0-44.5 8.5T558-726L425-592l-57-56 134-134q28-28 64-43t76-15q82 0 139.5 58T839-641q0 39-14.5 75T782-502L648-368Z"/></svg>',
   Location: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M536.5-503.5Q560-527 560-560t-23.5-56.5Q513-640 480-640t-56.5 23.5Q400-593 400-560t23.5 56.5Q447-480 480-480t56.5-23.5ZM480-186q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z"/></svg>',
@@ -58,14 +51,12 @@ const builtInLogos = {
   youtube: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF0000'><path d='M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.5 12 3.5 12 3.5s-7.505 0-9.377.55a3.016 3.016 0 00-2.122 2.136C0 8.07 0 12 0 12s0 3.93-.502 5.814a3.016 3.016 0 002.122 2.136c1.871.55 9.376.55 9.376.55s7.505 0 9.377-.55a3.016 3.016 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/></svg>"
 };
 
-
 let currentCenterLogo = null;
 let currentQRSize = 300;
 let lastGeneratedText = "qr-code";
 let dragCounter = 0;
-let historyState = [];
+let historyState =[];
 let currentHistView = "all";
-let stream = null;
 
 presetContainer.innerHTML = '';
 
@@ -131,7 +122,6 @@ clearLogoBtn.addEventListener('click', () => {
   generateQr();
 });
 
-
 let qrCodeInstance = new QRCodeStyling({
   width: currentQRSize,
   height: currentQRSize,
@@ -139,7 +129,6 @@ let qrCodeInstance = new QRCodeStyling({
   type: "canvas",
   qrOptions: { errorCorrectionLevel: "H" }
 });
-
 
 if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
   document.body.setAttribute("data-theme", "dark");
@@ -163,23 +152,15 @@ themeToggle.addEventListener("click", () => {
 
 document.querySelectorAll(".tab-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    document
-      .querySelectorAll(".tab-btn")
-      .forEach((b) => b.classList.remove("active"));
-    document
-      .querySelectorAll(".tab-content")
-      .forEach((c) => c.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach((c) => c.classList.remove("active"));
     btn.classList.add("active");
-    document
-      .getElementById(btn.getAttribute("data-target"))
-      .classList.add("active");
+    document.getElementById(btn.getAttribute("data-target")).classList.add("active");
   });
 });
 
 templateSelector.addEventListener("change", (e) => {
-  document
-    .querySelectorAll(".template-section")
-    .forEach((el) => el.classList.remove("active"));
+  document.querySelectorAll(".template-section").forEach((el) => el.classList.remove("active"));
   document.getElementById(`tpl-${e.target.value}`).classList.add("active");
 });
 
@@ -244,13 +225,13 @@ geoSearchInput.addEventListener("change", async (e) => {
 });
 
 function checkContrast() {
-  const hexToRgb = (hex) => [
+  const hexToRgb = (hex) =>[
     parseInt(hex.slice(1, 3), 16),
     parseInt(hex.slice(3, 5), 16),
     parseInt(hex.slice(5, 7), 16),
   ];
   const lum = ([r, g, b]) => {
-    let a = [r, g, b].map((v) => {
+    let a =[r, g, b].map((v) => {
       v /= 255;
       return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
     });
@@ -271,7 +252,7 @@ function checkContrast() {
 );
 
 async function shortenUrl(longUrl) {
-  const apis = [
+  const apis =[
     "R6TkierZYnp2nPqoz5qE1r38SVwEwjPc7QT9zR7hvP0wI0JvUsU7bwzCVWLw",
     "kJV3c2Pd5RdKpaWkqf45Mo4jZf7VskWnrwzq7pOCEs0vhaauzOZwKjEEgJAo",
   ];
@@ -324,7 +305,7 @@ async function generateQr() {
       gradient: {
         type: "linear",
         rotation: Math.PI / 4,
-        colorStops: [
+        colorStops:[
           { offset: 0, color: colorDarkInput.value },
           { offset: 1, color: colorDark2Input.value }
         ]
@@ -408,95 +389,6 @@ downloadbtn.addEventListener('click', async () => {
     alert("Download failed. Please try a different format.");
   }
 });
-
-
-
-
-camBtn.onclick = async () => {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment" }
-    });
-    video.srcObject = stream;
-    video.play();
-    camContainer.style.display = 'block';
-    scanPreview.style.display = 'none';
-    requestAnimationFrame(tick);
-  } catch (err) {
-    alert("Camera access denied or not available.");
-  }
-};
-
-function tick() {
-  if (video.readyState === video.HAVE_ENOUGH_DATA) {
-    const canvas = document.getElementById('camera-canvas');
-    canvas.height = video.videoHeight;
-    canvas.width = video.videoWidth;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imageData.data, canvas.width, canvas.height);
-
-    if (code) {
-      stopCamera();
-      outqrtxt.innerHTML = "";
-      outqrtxt.appendChild(parseScanResult(code.data));
-      saveHistory("Camera Scan", code.data);
-      return;
-    }
-  }
-  if (stream) requestAnimationFrame(tick);
-}
-
-function stopCamera() {
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
-  }
-  camContainer.style.display = 'none';
-}
-closeCam.onclick = stopCamera;
-
-
-/** 2. SMART PASTE (IMAGE OR TEXT) **/
-const pasteBtn = document.getElementById('past-from-clipboard-btn');
-
-pasteBtn.onclick = async () => {
-  try {
-    const items = await navigator.clipboard.read();
-    for (const item of items) {
-      // Check for Image
-      const imageType = item.types.find(type => type.startsWith('image/'));
-      if (imageType) {
-        const blob = await item.getType(imageType);
-        const file = new File([blob], "pasted-img.png", { type: imageType });
-        scanQR(file);
-        return;
-      }
-    }
-    // Fallback to Text
-    const text = await navigator.clipboard.readText();
-    if (text) {
-      document.querySelector('[data-target="tab-gen"]').click();
-      document.getElementById("qr-txt").value = text;
-      generateQr();
-    }
-  } catch (err) {
-    // Firefox may require text fallback if 'read' permission is complex
-    const text = await navigator.clipboard.readText();
-    if (text) {
-      document.querySelector('[data-target="tab-gen"]').click();
-      document.getElementById("qr-txt").value = text;
-      generateQr();
-    }
-  }
-};
-
-
-
-
-
 
 function parseScanResult(txt) {
   scanActions.style.display = "flex";
@@ -644,6 +536,7 @@ function parseScanResult(txt) {
   return container;
 }
 
+// ---- SCANNER LOGIC (FILE UPLOAD/PASTE) ----
 function scanQR(file) {
   outqrtxt.innerHTML = "";
   outqrtxt.insertAdjacentHTML("beforeend", "<i>Scanning...</i>");
@@ -659,14 +552,27 @@ function scanQR(file) {
       scanPreview.style.display = "block";
 
       const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth || img.width;
-      canvas.height = img.naturalHeight || img.height;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      
+      // DOWN-SCALE TO FIX MOBILE HANGING
+      let maxWidth = 800;
+      let maxHeight = 800;
+      let width = img.naturalWidth || img.width;
+      let height = img.naturalHeight || img.height;
+
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0, width, height);
 
       try {
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const qrResult = jsQR(imageData.data, canvas.width, canvas.height, { inversionAttempts: "attemptBoth" });
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const qrResult = jsQR(imageData.data, width, height, { inversionAttempts: "attemptBoth" });
 
         if (qrResult && qrResult.data) {
           outqrtxt.innerHTML = "";
@@ -676,26 +582,17 @@ function scanQR(file) {
           scanActions.style.display = "flex";
         } else {
           outqrtxt.innerHTML = "";
-          outqrtxt.insertAdjacentHTML(
-            "beforeend",
-            '<span style="color:red">No QR code found. Try a clearer image.</span>',
-          );
+          outqrtxt.insertAdjacentHTML("beforeend", '<span style="color:red">No QR code found. Try a clearer image.</span>');
         }
       } catch (err) {
         outqrtxt.innerHTML = "";
-        outqrtxt.insertAdjacentHTML(
-          "beforeend",
-          '<span style="color:red">Scanning failed.</span>',
-        );
+        outqrtxt.insertAdjacentHTML("beforeend", '<span style="color:red">Scanning failed.</span>');
         console.error(err);
       }
     };
     img.onerror = () => {
       outqrtxt.innerHTML = "";
-      outqrtxt.insertAdjacentHTML(
-        "beforeend",
-        '<span style="color:red">Failed to load image.</span>',
-      );
+      outqrtxt.insertAdjacentHTML("beforeend", '<span style="color:red">Failed to load image.</span>');
     };
 
     img.src = readerEvent.target.result;
@@ -703,10 +600,7 @@ function scanQR(file) {
 
   reader.onerror = () => {
     outqrtxt.innerHTML = "";
-    outqrtxt.insertAdjacentHTML(
-      "beforeend",
-      '<span style="color:red">Failed to read file.</span>',
-    );
+    outqrtxt.insertAdjacentHTML("beforeend", '<span style="color:red">Failed to read file.</span>');
   };
 
   reader.readAsDataURL(file);
@@ -721,6 +615,7 @@ copybtn.addEventListener("click", () => {
   if (t) navigator.clipboard.writeText(t).catch((e) => console.error(e));
 });
 
+// GENERATOR TAB PASTE
 clipboardbtn.addEventListener("click", () => {
   navigator.clipboard.readText().then((txt) => {
     if (txt) {
@@ -732,19 +627,111 @@ clipboardbtn.addEventListener("click", () => {
     }
   });
 });
-/*
-if (scanPageBtn) {
-  scanPageBtn.addEventListener('click', () => {
-    extApi.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-      if (tabs && tabs[0]) {
-        extApi.tabs.sendMessage(tabs[0].id, { action: "start_selection" }).catch(err => {
-          alert("Cannot scan this page. \n Most of time this feature not working on Firefox \n in future we fully fix this issue");
-        });
+
+// ---- SMART HYBRID CLIPBOARD LOGIC (SCANNER TAB) ----
+const pasteBtn = document.getElementById("past-from-clipboard-btn");
+pasteBtn.addEventListener("click", async () => {
+  try {
+    // 1. Try fetching rich blobs (Images) first
+    if (navigator.clipboard.read) {
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        const imageType = item.types.find(t => t.startsWith('image/'));
+        if (imageType) {
+          const blob = await item.getType(imageType);
+          const file = new File([blob], "pasted-img.png", { type: imageType });
+          scanQR(file);
+          return;
+        }
       }
+    }
+  } catch (e) {
+    console.log("Clipboard read() failed, falling back to text...");
+  }
+
+  // 2. Fallback to standard Text
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text) {
+      // If it looks like an image URL, scan it remotely
+      if (text.match(/\.(png|jpe?g|webp|gif|bmp)(\?.*)?$/i)) {
+        fetchAndScanExternalImage(text);
+      } else {
+        // Otherwise generate QR code
+        document.querySelector('[data-target="tab-gen"]').click();
+        templateSelector.value = "text";
+        templateSelector.dispatchEvent(new Event("change"));
+        document.getElementById("qr-txt").value = text;
+        generateQr();
+      }
+    }
+  } catch (e) {
+    alert("Could not access clipboard. Please check permissions.");
+  }
+});
+
+
+// ---- LIVE CAMERA LOGIC ----
+const camContainer = document.getElementById('camera-container');
+const videoFeed = document.getElementById('camera-feed');
+const closeCamBtn = document.getElementById('close-camera');
+const openCamBtn = document.getElementById('open-camera-btn');
+let cameraStream = null;
+
+openCamBtn.addEventListener("click", async () => {
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: "environment" } }
     });
-  });
+    videoFeed.srcObject = cameraStream;
+    camContainer.style.display = "block";
+    scanPreview.style.display = "none";
+    outqrtxt.innerHTML = "<i>Aim at a QR code...</i>";
+    scanActions.style.display = "none";
+    
+    const tick = () => {
+      if (!cameraStream) return;
+      if (videoFeed.readyState === videoFeed.HAVE_ENOUGH_DATA) {
+        const canvas = document.getElementById('camera-canvas');
+        canvas.height = videoFeed.videoHeight;
+        canvas.width = videoFeed.videoWidth;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(videoFeed, 0, 0, canvas.width, canvas.height);
+        
+        try {
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const qrResult = jsQR(imageData.data, canvas.width, canvas.height, { inversionAttempts: "dontInvert" });
+          
+          if (qrResult && qrResult.data) {
+            stopCamera();
+            outqrtxt.innerHTML = "";
+            outqrtxt.appendChild(parseScanResult(qrResult.data));
+            outqrtxt.setAttribute("data-raw", qrResult.data);
+            saveHistory("Camera Scan", qrResult.data);
+            scanActions.style.display = "flex";
+            return;
+          }
+        } catch (e) {}
+      }
+      requestAnimationFrame(tick);
+    };
+    
+    requestAnimationFrame(tick);
+  } catch (err) {
+    alert("Camera access denied or unavailable. Ensure permissions are granted.");
+  }
+});
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+  camContainer.style.display = "none";
 }
-*/
+
+closeCamBtn.addEventListener("click", stopCamera);
+
 
 function fetchAndScanExternalImage(url) {
   outqrtxt.textContent = "";
@@ -765,7 +752,6 @@ function fetchAndScanExternalImage(url) {
     }
   });
 }
-
 
 window.addEventListener("dragenter", (e) => {
   e.preventDefault();
@@ -839,9 +825,6 @@ window.addEventListener("drop", async (e) => {
 });
 
 
-
-
-
 function manageHistoryStorage() {
   const now = Date.now();
   historyState = historyState.filter((item) => {
@@ -857,7 +840,7 @@ function manageHistoryStorage() {
 function loadHistory() {
   if (extApi && extApi.storage && extApi.storage.local) {
     extApi.storage.local.get(["appHistory"], (res) => {
-      historyState = res.appHistory || [];
+      historyState = res.appHistory ||[];
       manageHistoryStorage();
     });
   }
@@ -1024,7 +1007,6 @@ function createSafeSvgIcon(svgStr) {
 
 loadHistory();
 
-
 if (extApi && extApi.storage && extApi.storage.local) {
   extApi.storage.local.get(["qrurl", "qrimageurl"], (result) => {
     if (result.qrurl) {
@@ -1041,6 +1023,7 @@ if (extApi && extApi.storage && extApi.storage.local) {
       extApi.storage.local.remove("qrimageurl");
     }
   });
+  
   extApi.storage.onChanged.addListener((changes, area) => {
     if (area === "local") {
       if (changes["qrurl"] && changes["qrurl"].newValue) {
@@ -1056,6 +1039,7 @@ if (extApi && extApi.storage && extApi.storage.local) {
         fetchAndScanExternalImage(changes["qrimageurl"].newValue);
         extApi.storage.local.remove("qrimageurl");
       }
+      // Keeps old desktop snipping area feature alive.
       if (changes["qrAreaScan"] && changes["qrAreaScan"].newValue) {
         const data = changes["qrAreaScan"].newValue;
         document.querySelector('[data-target="tab-scan"]').click();

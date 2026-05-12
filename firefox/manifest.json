@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "QR Code Scanner & Generator",
-  "version": "3.6.5",
+  "version": "3.6.6",
   "description": "QR Code Scanner & Generator",
   "author": "Pro Bandey",
   "homepage_url": "https://github.com/MegaMind-Solution",

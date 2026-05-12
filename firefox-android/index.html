@@ -220,7 +220,7 @@
             <path
               d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h167q11-35 43-57.5t70-22.5q40 0 71.5 22.5T594-840h166q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560h-80v120H280v-120h-80v560Zm308.5-571.5Q520-783 520-800t-11.5-28.5Q497-840 480-840t-28.5 11.5Q440-817 440-800t11.5 28.5Q463-760 480-760t28.5-11.5Z" />
           </svg>
-        </button>
+          </button>
       </div>
 
       <div id="qrcode"><span title="Empty Output Preview" style="color: #9CA3AF; font-size: 13px;">Output preview</span>
@@ -246,7 +246,7 @@
   <!-- SCANNER TAB -->
   <div id="tab-scan" class="tab-content">
     <div class="container">
-
+      
       <h3>Scan QR Image</h3>
       <button title="Scan By Camera" id="open-camera-btn" type="button" class="btn-primary">
         <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
@@ -257,11 +257,18 @@
       </button>
       <button title="Past From Clipboard" id="past-from-clipboard-btn" type="button" class="btn-secondary alt">
         <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
-          <path
-            d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h167q11-35 43-57.5t70-22.5q40 0 71.5 22.5T594-840h166q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560h-80v120H280v-120h-80v560Zm308.5-571.5Q520-783 520-800t-11.5-28.5Q497-840 480-840t-28.5 11.5Q440-817 440-800t11.5 28.5Q463-760 480-760t28.5-11.5Z" />
+            <path
+              d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h167q11-35 43-57.5t70-22.5q40 0 71.5 22.5T594-840h166q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560h-80v120H280v-120h-80v560Zm308.5-571.5Q520-783 520-800t-11.5-28.5Q497-840 480-840t-28.5 11.5Q440-817 440-800t11.5 28.5Q463-760 480-760t28.5-11.5Z" />
         </svg>
         Past Image
       </button>
+
+      <!-- LIVE CAMERA CONTAINER -->
+      <div id="camera-container" style="display:none; position:relative; width:100%; border-radius:12px; overflow:hidden; background:#000; margin-top:15px; margin-bottom:15px;">
+          <video id="camera-feed" playsinline autoplay muted style="width:100%; display:block; max-height:400px; object-fit:cover;"></video>
+          <canvas id="camera-canvas" style="display:none;"></canvas>
+          <button id="close-camera" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.5); border:none; color:white; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-weight:bold;">✕</button>
+      </div>
 
       <div style="position: relative; overflow: hidden; display: flex; flex-direction: column;">
         <label title="Upload QR Image" class="btn-primary" for="img-in">
@@ -273,14 +280,6 @@
         <input id="img-in" type="file" accept="image/*" style="position: absolute; left: -9999px;" />
       </div>
 
-      <!-- Inside the SCANNER TAB (tab-scan) div, before scan-preview -->
-      <div id="camera-container"
-        style="display:none; position:relative; width:100%; border-radius:12px; overflow:hidden; background:#000; margin-bottom:15px;">
-        <video id="camera-feed" style="width:100%; display:block;"></video>
-        <canvas id="camera-canvas" style="display:none;"></canvas>
-        <button id="close-camera"
-          style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.5); border:none; color:white; border-radius:50%; width:30px; height:30px;">✕</button>
-      </div>
       <img title="Your Given QR Code Image" id="scan-preview" src="" alt="preview" />
 
       <div title="Scan Result Will Appear Here..." class="parsed-result" id="out-qr-txt">Result...</div>
@@ -336,7 +335,6 @@
   <script type="text/javascript" src="js/qrCodeGen.js"></script>
   <script type="text/javascript" src="js/qrCodeScan.js"></script>
   <script type="module" src="js/index.js"></script>
-
   <script src="js/toaster.js" type="module"></script>
 
 </body>

@@ -1,23 +1,71 @@
 const extApi = typeof browser !== "undefined" ? browser : chrome;
 
-// Helper to open the app with data
-function openAppWithData(data) {
-    extApi.storage.local.set(data, () => {
-        extApi.tabs.create({ url: extApi.runtime.getURL("index.html") });
-    });
-}
+extApi.runtime.onInstalled.addListener((details) => {
+  if (details.reason === "install") {
+    extApi.tabs.create({ url: "intro.html" });
+  }
+  extApi.storage.local.set({ bannerStartTime: Date.now(), bannerDismissed: false });
 
-// Handle messages from the Custom Mobile Menu
-extApi.runtime.onMessage.addListener((request) => {
-    if (request.action === "open_with_data") {
-        openAppWithData(request.data);
-    }
+  extApi.contextMenus.create({ id: 'openSidePanel', title: 'Create QR for this page', contexts: ['page'] });
+  extApi.contextMenus.create({ id: 'openSidePanel1', title: 'Create QR for "%s"', contexts: ['selection'] });
+  extApi.contextMenus.create({ id: 'openSidePanel2', title: 'Create QR for selected link', contexts:['link'] });
+  extApi.contextMenus.create({ id: 'openSidePanel3', title: 'Create QR for image/media link', contexts: ['image', 'audio', 'video'] });
+  extApi.contextMenus.create({ id: 'openSidePanel4', title: 'Scan QR Code from image', contexts: ['image'] });
+
+  if (extApi.sidePanel && extApi.sidePanel.setPanelBehavior) {
+    extApi.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(console.error);
+  }
 });
 
-// Context Menus (For Desktop compatibility)
+extApi.runtime.onStartup.addListener(() => {
+  extApi.storage.local.set({ bannerStartTime: Date.now(), bannerDismissed: false });
+});
+
+extApi.runtime.setUninstallURL("https://github.com/pro-bandey/QR-SnG");
+
+// Listen for custom mobile menu action
+extApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "open_from_mobile_menu") {
+      extApi.storage.local.set(request.data, () => {
+          // Firefox Mobile fallback: open extension in new tab to process data
+          extApi.tabs.create({ url: extApi.runtime.getURL("index.html") });
+      });
+  }
+});
+
 extApi.contextMenus.onClicked.addListener((info, tab) => {
-    let data = {};
-    if (info.menuItemId === 'openSidePanel') data.qrurl = tab.url;
-    // ... (keep your existing logic)
-    openAppWithData(data);
+  let data = {};
+  if (info.menuItemId === 'openSidePanel') data.qrurl = tab.url;
+  else if (info.menuItemId === 'openSidePanel1') data.qrurl = info.selectionText;
+  else if (info.menuItemId === 'openSidePanel2') data.qrurl = info.linkUrl;
+  else if (info.menuItemId === 'openSidePanel3') data.qrurl = info.srcUrl;
+  else if (info.menuItemId === 'openSidePanel4') data.qrimageurl = info.srcUrl;
+
+  // Chrome Side Panel Handling (Avoids Race Conditions)
+  if (extApi.sidePanel && extApi.sidePanel.open) {
+    extApi.storage.local.set(data, () => {
+      extApi.sidePanel.open({ windowId: tab.windowId }).catch(console.error);
+    });
+  }
+  // Firefox Desktop Sidebar Handling 
+  else {
+    if (extApi.sidebarAction && extApi.sidebarAction.open) {
+      extApi.sidebarAction.open();
+    } else {
+      // Firefox Mobile Fallback
+      extApi.tabs.create({ url: extApi.runtime.getURL("index.html") });
+    }
+    extApi.storage.local.set(data);
+  }
 });
+
+// Firefox toggle handling for the extension icon
+if (!extApi.sidePanel && extApi.action) {
+  extApi.action.onClicked.addListener(() => {
+    if (extApi.sidebarAction && extApi.sidebarAction.toggle) {
+      extApi.sidebarAction.toggle(); 
+    } else {
+      extApi.tabs.create({ url: extApi.runtime.getURL("index.html") });
+    }
+  });
+}
