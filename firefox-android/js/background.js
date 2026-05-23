@@ -11,10 +11,6 @@ extApi.runtime.onInstalled.addListener((details) => {
   extApi.contextMenus.create({ id: 'openSidePanel2', title: 'Create QR for selected link', contexts:['link'] });
   extApi.contextMenus.create({ id: 'openSidePanel3', title: 'Create QR for image/media link', contexts: ['image', 'audio', 'video'] });
   extApi.contextMenus.create({ id: 'openSidePanel4', title: 'Scan QR Code from image', contexts: ['image'] });
-
-  if (extApi.sidePanel && extApi.sidePanel.setPanelBehavior) {
-    extApi.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(console.error);
-  }
 });
 
 extApi.runtime.onStartup.addListener(() => {
@@ -23,16 +19,16 @@ extApi.runtime.onStartup.addListener(() => {
 
 extApi.runtime.setUninstallURL("https://github.com/pro-bandey/QR-SnG");
 
-// Listen for custom mobile menu action
+// Listen for the Custom Mobile Menu
 extApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "open_from_mobile_menu") {
       extApi.storage.local.set(request.data, () => {
-          // Firefox Mobile fallback: open extension in new tab to process data
           extApi.tabs.create({ url: extApi.runtime.getURL("index.html") });
       });
   }
 });
 
+// Handle System Context Menu Clicks
 extApi.contextMenus.onClicked.addListener((info, tab) => {
   let data = {};
   if (info.menuItemId === 'openSidePanel') data.qrurl = tab.url;
@@ -41,31 +37,16 @@ extApi.contextMenus.onClicked.addListener((info, tab) => {
   else if (info.menuItemId === 'openSidePanel3') data.qrurl = info.srcUrl;
   else if (info.menuItemId === 'openSidePanel4') data.qrimageurl = info.srcUrl;
 
-  // Chrome Side Panel Handling (Avoids Race Conditions)
-  if (extApi.sidePanel && extApi.sidePanel.open) {
-    extApi.storage.local.set(data, () => {
-      extApi.sidePanel.open({ windowId: tab.windowId }).catch(console.error);
-    });
-  }
-  // Firefox Desktop Sidebar Handling 
-  else {
-    if (extApi.sidebarAction && extApi.sidebarAction.open) {
-      extApi.sidebarAction.open();
-    } else {
-      // Firefox Mobile Fallback
-      extApi.tabs.create({ url: extApi.runtime.getURL("index.html") });
-    }
-    extApi.storage.local.set(data);
-  }
+  extApi.storage.local.set(data, () => {
+    extApi.tabs.create({ url: extApi.runtime.getURL("index.html") });
+  });
 });
 
-// Firefox toggle handling for the extension icon
-if (!extApi.sidePanel && extApi.action) {
-  extApi.action.onClicked.addListener(() => {
-    if (extApi.sidebarAction && extApi.sidebarAction.toggle) {
-      extApi.sidebarAction.toggle(); 
-    } else {
-      extApi.tabs.create({ url: extApi.runtime.getURL("index.html") });
-    }
+// OPEN AS NEW TAB ON ICON CLICK
+// (This only works if "default_popup" is removed from manifest.json)
+const actionApi = extApi.action || extApi.browserAction;
+if (actionApi) {
+  actionApi.onClicked.addListener(() => {
+    extApi.tabs.create({ url: extApi.runtime.getURL("index.html") });
   });
 }
