@@ -130,8 +130,28 @@
               </div>
             </div>
             <div class="col">
-              <label>Background Color</label>
+              <label>Eye Color</label>
+              <input type="color" id="color-eye" value="#4F46E5" title="Pick Eye Color" />
+            </div>
+            <div class="col">
+              <label>Background</label>
               <input type="color" id="color-light" value="#ffffff" title="Pick Background Color" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 10px;">
+            <div class="col" style="flex: 1;">
+              <label>Margin: <span id="margin-val">5</span>px</label>
+              <input type="range" id="qr-margin" min="0" max="20" value="5" style="width: 100%;" />
+            </div>
+            <div class="col" style="flex: 1;">
+              <label>Error Correction</label>
+              <select title="Auto H when Logo present" id="qr-ecl">
+                <option value="L">Low (7%)</option>
+                <option value="M" selected>Medium (15%)</option>
+                <option value="Q">Quartile (25%)</option>
+                <option value="H">High (30%)</option>
+              </select>
             </div>
           </div>
 

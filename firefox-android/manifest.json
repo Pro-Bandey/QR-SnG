@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "QR Code Scanner & Generator Android",
-  "version": "3.7.5",
+  "version": "3.8.5",
   "description": "QR Code Scanner & Generator Android",
   "author": "Pro Bandey",
-  "homepage_url": "https://github.com/Pro-Bandey",
+  "homepage_url": "https://github.io/?-pro=QR-SnG",
   "icons": {
     "16": "icons/16.png",
     "32": "icons/32.png",
@@ -27,22 +27,14 @@
     "clipboardWrite",
     "clipboardRead"
   ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
+  "host_permissions": ["<all_urls>"],
   "background": {
-    "scripts": [
-      "js/background.js"
-    ]
+    "scripts": ["js/background.js"]
   },
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "js/content.js"
-      ],
+      "matches": ["<all_urls>"],
+      "js": ["js/content.js"],
       "run_at": "document_idle"
     }
   ],
@@ -54,13 +46,11 @@
       "id": "qr-sng-android@pro-bandey.com",
       "strict_min_version": "142.0",
       "data_collection_permissions": {
-        "required": [
-          "none"
-        ]
+        "required": ["none"]
       },
       "gecko_android": {
-      "strict_min_version": "146.0"
-    }
+        "strict_min_version": "146.0"
+      }
     }
   }
 }

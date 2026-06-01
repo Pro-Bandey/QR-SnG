@@ -19,7 +19,6 @@ extApi.runtime.onStartup.addListener(() => {
 
 extApi.runtime.setUninstallURL("https://github.com/pro-bandey/QR-SnG");
 
-// Listen for the Custom Mobile Menu
 extApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "open_from_mobile_menu") {
       extApi.storage.local.set(request.data, () => {
@@ -28,7 +27,6 @@ extApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-// Handle System Context Menu Clicks
 extApi.contextMenus.onClicked.addListener((info, tab) => {
   let data = {};
   if (info.menuItemId === 'openSidePanel') data.qrurl = tab.url;
@@ -42,8 +40,6 @@ extApi.contextMenus.onClicked.addListener((info, tab) => {
   });
 });
 
-// OPEN AS NEW TAB ON ICON CLICK
-// (This only works if "default_popup" is removed from manifest.json)
 const actionApi = extApi.action || extApi.browserAction;
 if (actionApi) {
   actionApi.onClicked.addListener(() => {

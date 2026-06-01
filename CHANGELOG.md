@@ -1,6 +1,26 @@
+#### **The Debuging, Reliability/Focus & Stability (v3.7.0 — v3.8.5)**
+
+> _Focus: Debuging, reliability/Focus, correction and stability._
+
+- **What’s New:**
+  - **Discrete Eye Customization:** Added a dedicated eye color control (`#color-eye`) allowing separate color configuration for corner outlines and internal dots.
+  - **Quiet-Zone/Margin Slider:** Implemented an interactive slider (`#qr-margin`) to dynamically adjust the spacing around the outer border of the generated QR code.
+  - **Manual Error Correction Select:** Added a manual density selector (`#qr-ecl`) supporting low, medium, quartile, and high data redundancy options.
+  - **Linked Color Pickers:** Configured a smart matching routine where modifying the primary dark color picker automatically aligns the secondary picker to facilitate quick solid-color design, while editing the secondary picker independently initiates gradient generation.
+  - **Dynamic Branded Defaults:** Optimized startup initialization to load the branded logo preset and theme primary styling immediately upon load.
+
+- **What’s Fixed:**
+  - **Gradient Overwrite Lock:** Resolved a caching issue in the layout rendering engine where solid colors failed to replace active gradients by explicitly clearing the configuration's gradient parameters when colors match.
+  - **Compliance & Security Sanitization:** Mitigated browser extension security concerns by swapping standard markup injections with secure node creation via `DOMParser`, `replaceChildren()`, and `DocumentFragment` construction.
+  - **Live Customization Rendering:** Swapped classic `"change"` color hooks for `"input"` listeners, enabling real-time visual feedback while actively dragging selectors.
+  - **Over-Sizing Protection:** Enforced safety controls to restrict maximum logo footprints to a 30% area limit and automatically elevate the Error Correction Level to High when a center graphic is active.
+
+- **What’s Removed:**
+  - **Raw HTML String Generation:** Eliminated all direct `innerHTML` evaluations inside tab displays, history cards, and scan parsers to prevent browser sandbox warning flags.
+
 #### **The Android & Cross Device (v3.5.1 — v3.6.5)**
 
-_Focus: Modern aesthetics, Cross device support, and cross-browser stability._
+> _Focus: Modern aesthetics, Cross device support, and cross-browser stability._
 
 - **What’s New:**
   - **Firefox Android Version:** Introdued new Firfox android verrsion.
@@ -14,7 +34,7 @@ _Focus: Modern aesthetics, Cross device support, and cross-browser stability._
 
 #### **The Fixing & Social Version (v3.2.0 — v3.5.0)**
 
-_Focus: Modern aesthetics, social integration, and cross-browser stability._
+> _Focus: Modern aesthetics, social integration, and cross-browser stability._
 
 - **What’s New:**
   - **Modern QR Engine Upgrade:** Migrated from legacy to the powerful library.
@@ -34,7 +54,7 @@ _Focus: Modern aesthetics, social integration, and cross-browser stability._
 
 #### **The Master Version (v3.1.0 — v3.1.5)**
 
-_Focus: Ultimate utility and "Scan Anywhere" technology._
+> _Focus: Ultimate utility and "Scan Anywhere" technology._
 
 - **What’s New:**
   - **On-Screen Snipping Tool:** New feature to drag and select a specific area on any webpage to scan QR codes from `<canvas>`, `<svg>`, or CSS backgrounds.
@@ -48,7 +68,7 @@ _Focus: Ultimate utility and "Scan Anywhere" technology._
 
 #### **Smart Logic & UX Polish (v2.9.0 — v3.0.5)**
 
-_Focus: User experience and cross-platform stability._
+> _Focus: User experience and cross-platform stability._
 
 - **What’s New:**
   - **Smart File Naming:** Files are now named `QR-SnG_[content].png` (sanitized and truncated to 50 chars) instead of random timestamps.
@@ -62,7 +82,7 @@ _Focus: User experience and cross-platform stability._
 
 #### **High Customization & Export (v2.3.0 — v2.8.5)**
 
-_Focus: Visual aesthetics and professional-grade outputs._
+> _Focus: Visual aesthetics and professional-grade outputs._
 
 - **What’s New:**
   - **Matrix Rendering Engine:** Re-engineered the generator to support **Dots, Liquid, and Square** shapes.
@@ -77,7 +97,7 @@ _Focus: Visual aesthetics and professional-grade outputs._
 
 #### **The UI Rebirth & Privacy Pivot (v1.6.0 — v2.2.0)**
 
-_Focus: Redesigning for privacy and modern browser standards._
+> _Focus: Redesigning for privacy and modern browser standards._
 
 - **What’s New:**
   - **Side Panel Integration:** Moved the UI from a popup to the Chrome Side Panel for a persistent multitasking experience.
@@ -91,7 +111,7 @@ _Focus: Redesigning for privacy and modern browser standards._
 
 #### **The Foundation (v1.0.0 — v1.5.0)**
 
-_Focus: Initial release and core utility._
+> _Focus: Initial release and core utility._
 
 - **What’s New:**
   - Initial launch with QR Generation for plain text and URLs.

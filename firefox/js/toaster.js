@@ -1,7 +1,7 @@
 
 window.UniversalToasterConfig = {
     backgroundColor: "var(--primary)",   // e.g. "#333" or null
-    textColor: "var(--text-main)",   // e.g. "#fff" or null
+    textColor: "var(--white)",   // e.g. "#fff" or null
 
     fontFamily: "inherit", // Uses page font
     fontSize: "14px",
@@ -15,20 +15,7 @@ window.UniversalToasterConfig = {
 
 
 /**
- * Universal Toaster (v2.0 - Stability Fixes)
- * ------------------------------------------------------------------
- * Fixed: Tooltips sticking when scrolling, clicking, or changing tabs.
- * ------------------------------------------------------------------
- */
-
-/**
  * Universal Toaster (v3.0 - Rich Text & Styles)
- * ------------------------------------------------------------------
- * Features:
- * - HTML Safe (Prevents XSS while allowing custom styling)
- * - Custom Shortcodes: Color, Bg, Font, Weight
- * - Dynamic Google Fonts Loader
- * - Character Truncation Logic
  * ------------------------------------------------------------------
  */
 

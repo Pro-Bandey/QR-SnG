@@ -130,8 +130,28 @@
               </div>
             </div>
             <div class="col">
-              <label>Background Color</label>
+              <label>Eye Color</label>
+              <input type="color" id="color-eye" value="#4F46E5" title="Pick Eye Color" />
+            </div>
+            <div class="col">
+              <label>Background</label>
               <input type="color" id="color-light" value="#ffffff" title="Pick Background Color" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 10px;">
+            <div class="col" style="flex: 1;">
+              <label>Margin: <span id="margin-val">5</span>px</label>
+              <input type="range" id="qr-margin" min="0" max="20" value="5" style="width: 100%;" />
+            </div>
+            <div class="col" style="flex: 1;">
+              <label>Error Correction</label>
+              <select title="Auto H when Logo present" id="qr-ecl">
+                <option value="L">Low (7%)</option>
+                <option value="M" selected>Medium (15%)</option>
+                <option value="Q">Quartile (25%)</option>
+                <option value="H">High (30%)</option>
+              </select>
             </div>
           </div>
 
@@ -223,7 +243,8 @@
           </svg></button>
       </div>
 
-      <div id="qrcode"><span title="Empty Output Preview" style="color: #9CA3AF; font-size: 13px;">Output preview</span></div>
+      <div id="qrcode"><span title="Empty Output Preview" style="color: #9CA3AF; font-size: 13px;">Output preview</span>
+      </div>
 
       <div class="row">
         <select title="Select Output Type" id="download-format">
@@ -285,14 +306,15 @@
   <div id="tab-history" class="tab-content">
     <div class="container" style="background: transparent; box-shadow: none; padding: 0;">
       <div class="hist-tabs">
-        <div title="All Previous Items" class="hist-tab active" data-view="all"><svg height="20px" viewBox="0 -960 960 960" width="20px"
-            fill="currentColor">
+        <div title="All Previous Items" class="hist-tab active" data-view="all"><svg height="20px"
+            viewBox="0 -960 960 960" width="20px" fill="currentColor">
             <path
               d="M294-294v-372h372v372H294Zm72-72h228v-228H366v228ZM216-216v72q-29.7 0-50.85-21.15Q144-186.3 144-216h72Zm-72-78v-72h72v72h-72Zm0-150v-72h72v72h-72Zm0-150v-72h72v72h-72Zm72-150h-72q0-29.7 21.15-50.85Q186.3-816 216-816v72Zm78 600v-72h72v72h-72Zm0-600v-72h72v72h-72Zm150 600v-72h72v72h-72Zm0-600v-72h72v72h-72Zm150 600v-72h72v72h-72Zm0-600v-72h72v72h-72Zm150 600v-72h72q0 30-21.15 51T744-144Zm0-150v-72h72v72h-72Zm0-150v-72h72v72h-72Zm0-150v-72h72v72h-72Zm0-150v-72q29.7 0 50.85 21.15Q816-773.7 816-744h-72Z" />
           </svg>
           All
         </div>
-        <div title="Your Favorites Items" class="hist-tab" data-view="fav"><svg height="16px" viewBox="0 -960 960 960" width="16px" fill="#EA33F7">
+        <div title="Your Favorites Items" class="hist-tab" data-view="fav"><svg height="16px" viewBox="0 -960 960 960"
+            width="16px" fill="#EA33F7">
             <path
               d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
           </svg>

@@ -5,7 +5,6 @@ const qrcodee = document.getElementById("qrcode");
 const genbtn = document.getElementById("gen-btn");
 const downloadbtn = document.getElementById("download-btn");
 const clipboardbtn = document.getElementById("clip-btn");
-
 const scanPageBtn = document.getElementById('scan-page-btn');
 const input = document.querySelector("#img-in");
 const outqrtxt = document.getElementById("out-qr-txt");
@@ -30,8 +29,10 @@ const logoInput = document.getElementById('logo-input');
 const clearLogoBtn = document.getElementById('clear-logo-btn');
 const presetContainer = document.getElementById('logo-presets');
 const themeToggle = document.getElementById("theme-toggle");
-
-
+const colorEyeInput = document.getElementById("color-eye");
+const qrMarginInput = document.getElementById("qr-margin");
+const marginValSpan = document.getElementById("margin-val");
+const qrEclSelect = document.getElementById("qr-ecl");
 const actionbtnSvg = {
   link: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M318-120q-82 0-140-58t-58-140q0-40 15-76t43-64l134-133 56 56-134 134q-17 17-25.5 38.5T200-318q0 49 34.5 83.5T318-200q23 0 45-8.5t39-25.5l133-134 57 57-134 133q-28 28-64 43t-76 15Zm79-220-57-57 223-223 57 57-223 223Zm251-28-56-57 134-133q17-17 25-38t8-44q0-50-34-85t-84-35q-23 0-44.5 8.5T558-726L425-592l-57-56 134-134q28-28 64-43t76-15q82 0 139.5 58T839-641q0 39-14.5 75T782-502L648-368Z"/></svg>',
   Location: '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M536.5-503.5Q560-527 560-560t-23.5-56.5Q513-640 480-640t-56.5 23.5Q400-593 400-560t23.5 56.5Q447-480 480-480t56.5-23.5ZM480-186q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z"/></svg>',
@@ -53,27 +54,40 @@ const builtInLogos = {
   youtube: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF0000'><path d='M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.5 12 3.5 12 3.5s-7.505 0-9.377.55a3.016 3.016 0 00-2.122 2.136C0 8.07 0 12 0 12s0 3.93-.502 5.814a3.016 3.016 0 002.122 2.136c1.871.55 9.376.55 9.376.55s7.505 0 9.377-.55a3.016 3.016 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/></svg>"
 };
 
+function createSafeSvg(svgStr) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgStr, "image/svg+xml");
+  return doc.documentElement;
+}
 
-let currentCenterLogo = null;
+let currentCenterLogo = builtInLogos.qrsng;
 let currentQRSize = 300;
 let lastGeneratedText = "qr-code";
 let dragCounter = 0;
 let historyState = [];
 let currentHistView = "all";
 
-presetContainer.innerHTML = '';
+colorDarkInput.value = "#4F46E5";
+colorDark2Input.value = "#4F46E5";
+colorEyeInput.value = "#4F46E5";
 
+presetContainer.replaceChildren();
 Object.keys(builtInLogos).forEach(key => {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.title = key.charAt(0).toUpperCase() + key.slice(1);
   btn.style.cssText = 'width:36px; height:36px; padding:4px; border:1px solid var(--border); border-radius:6px; background:var(--surface); cursor:pointer; flex-shrink:0;';
 
+  const img = document.createElement("img");
+  img.style.cssText = "width:100%; height:100%; object-fit:contain;";
+
   if (key === 'twitter' && document.body.getAttribute('data-theme') === 'dark') {
-    btn.innerHTML = `<img src="${builtInLogos[key].replace('%23000000', '%23FFFFFF')}" style="width:100%; height:100%; object-fit:contain;" />`;
+    img.src = builtInLogos[key].replace('%23000000', '%23FFFFFF');
   } else {
-    btn.innerHTML = `<img src="${builtInLogos[key]}" style="width:100%; height:100%; object-fit:contain;" />`;
+    img.src = builtInLogos[key];
   }
+
+  btn.appendChild(img);
 
   btn.onclick = () => {
     logoUrlInput.value = '';
@@ -125,7 +139,6 @@ clearLogoBtn.addEventListener('click', () => {
   generateQr();
 });
 
-
 let qrCodeInstance = new QRCodeStyling({
   width: currentQRSize,
   height: currentQRSize,
@@ -134,24 +147,20 @@ let qrCodeInstance = new QRCodeStyling({
   qrOptions: { errorCorrectionLevel: "H" }
 });
 
-
 if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
   document.body.setAttribute("data-theme", "dark");
-  themeToggle.innerHTML =
-    '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Zm-10-270Z"/></svg>';
+  themeToggle.replaceChildren(createSafeSvg('<svg height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Zm-10-270Z"/></svg>'));
 }
 
 themeToggle.addEventListener("click", () => {
   if (document.body.getAttribute("data-theme") === "dark") {
     document.body.removeAttribute("data-theme");
     localStorage.setItem("theme", "light");
-    themeToggle.innerHTML =
-      '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M565-395q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35Zm-226.5 56.5Q280-397 280-480t58.5-141.5Q397-680 480-680t141.5 58.5Q680-563 680-480t-58.5 141.5Q563-280 480-280t-141.5-58.5ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Zm326-268Z"/></svg>';
+    themeToggle.replaceChildren(createSafeSvg('<svg height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M565-395q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35Zm-226.5 56.5Q280-397 280-480t58.5-141.5Q397-680 480-680t141.5 58.5Q680-563 680-480t-58.5 141.5Q563-280 480-280t-141.5-58.5ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Zm326-268Z"/></svg>'));
   } else {
     document.body.setAttribute("data-theme", "dark");
     localStorage.setItem("theme", "dark");
-    themeToggle.innerHTML =
-      '<svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Zm-10-270Z"/></svg>';
+    themeToggle.replaceChildren(createSafeSvg('<svg height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Zm0-80q88 0 158-48.5T740-375q-20 5-40 8t-40 3q-123 0-209.5-86.5T364-660q0-20 3-40t8-40q-78 32-126.5 102T200-480q0 116 82 198t198 82Zm-10-270Z"/></svg>'));
   }
 });
 
@@ -255,12 +264,14 @@ function checkContrast() {
   const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 
   if (!transBgCheck.checked && ratio < 3.0) {
-    contrastWarning.innerText = `⚠️ Low Contrast (${ratio.toFixed(1)}:1). QR may not scan well.`;
+    contrastWarning.textContent = `⚠️ Low Contrast (${ratio.toFixed(1)}:1). QR may not scan well.`;
     contrastWarning.style.display = "block";
   } else {
     contrastWarning.style.display = "none";
   }
-} [colorDarkInput, colorLightInput, transBgCheck].forEach((el) =>
+}
+
+[colorDarkInput, colorLightInput, transBgCheck].forEach((el) =>
   el.addEventListener("change", checkContrast),
 );
 
@@ -311,10 +322,18 @@ async function generateQr() {
   const shapeType = document.getElementById('qr-shape').value;
   const eyeType = document.getElementById('eye-shape').value;
   const innerEyeType = document.getElementById('inner-eye-shape').value;
+  const activeMargin = parseInt(qrMarginInput.value) || 0;
+
+  let finalEcl = qrEclSelect.value;
+  if (currentCenterLogo) {
+    finalEcl = "H";
+    qrEclSelect.value = "H";
+  }
 
   let colorConfig = {};
   if (colorDarkInput.value !== colorDark2Input.value) {
     colorConfig = {
+      color: undefined,
       gradient: {
         type: "linear",
         rotation: Math.PI / 4,
@@ -325,35 +344,39 @@ async function generateQr() {
       }
     };
   } else {
-    colorConfig = { color: colorDarkInput.value };
+    colorConfig = {
+      color: colorDarkInput.value,
+      gradient: null,
+    };
   }
+
+  const eyeColorConfig = { color: colorEyeInput.value };
 
   qrCodeInstance.update({
     width: currentQRSize,
     height: currentQRSize,
     data: txt,
-    margin: 5,
+    margin: activeMargin,
     qrOptions: {
       mode: "Byte",
-      errorCorrectionLevel: currentCenterLogo ? "Q" : "M"
+      errorCorrectionLevel: finalEcl
     },
     image: currentCenterLogo,
     imageOptions: {
       crossOrigin: "anonymous",
       margin: 2,
-      imageSize: 0.4,
+      imageSize: 0.3,
       hideBackgroundDots: true
     },
     dotsOptions: { type: shapeType, ...colorConfig },
-    cornersSquareOptions: { type: eyeType, ...colorConfig },
-    cornersDotOptions: { type: innerEyeType, ...colorConfig },
+    cornersSquareOptions: { type: eyeType, ...eyeColorConfig },
+    cornersDotOptions: { type: innerEyeType, ...eyeColorConfig },
     backgroundOptions: {
       color: transBgCheck.checked ? "transparent" : colorLightInput.value,
     }
   });
 
-  qrcodee.innerHTML = '';
-  qrcodee.title = "Output QR Code";
+  qrcodee.replaceChildren();
   qrCodeInstance.append(qrcodee);
 
   saveHistory('Generated At', lastGeneratedText);
@@ -363,6 +386,30 @@ genbtn.addEventListener("click", generateQr);
 document.getElementById('qr-shape').addEventListener('change', generateQr);
 document.getElementById('eye-shape').addEventListener('change', generateQr);
 document.getElementById('inner-eye-shape').addEventListener('change', generateQr);
+qrEclSelect.addEventListener("change", generateQr);
+
+qrMarginInput.addEventListener("input", (e) => {
+  marginValSpan.textContent = e.target.value;
+  generateQr();
+});
+
+colorDarkInput.addEventListener("input", () => {
+  colorDark2Input.value = colorDarkInput.value;
+  generateQr();
+  checkContrast();
+});
+
+colorDark2Input.addEventListener("input", () => {
+  generateQr();
+  checkContrast();
+});
+
+colorEyeInput.addEventListener("input", generateQr);
+
+colorLightInput.addEventListener("input", () => {
+  generateQr();
+  checkContrast();
+});
 
 function getSmartFilename(ext) {
   let name = lastGeneratedText
@@ -407,151 +454,198 @@ function parseScanResult(txt) {
   scanActions.style.display = "flex";
   actionbtn.style.display = "none";
   actionbtn.onclick = null;
-  actionbtn.innerHTML = "";
+  actionbtn.replaceChildren();
 
-  const container = document.createElement("div");
+  const container = document.createDocumentFragment();
+
+  const linkAction = (svg, text, targetUrl) => {
+    actionbtn.style.display = "flex";
+    actionbtn.replaceChildren(createSafeSvg(svg));
+    actionbtn.appendChild(document.createTextNode(" " + text));
+    actionbtn.onclick = () => {
+      if (extApi && extApi.tabs) extApi.tabs.create({ url: targetUrl });
+      else window.open(targetUrl, "_blank");
+    };
+  };
 
   if (txt.startsWith("WIFI:")) {
     const type = (txt.match(/T:(.*?);/) || [])[1] || "";
     const ssid = (txt.match(/S:(.*?);/) || [])[1] || "";
     const pass = (txt.match(/P:(.*?);/) || [])[1] || "";
 
-    container.insertAdjacentHTML(
-      "beforeend",
-      `<strong>Wi-Fi Network</strong><br><b>Name:</b> <span class="v-ssid"></span><br><b>Pass:</b> <span class="v-pass"></span><br><b>Security:</b> <span class="v-type"></span>`,
-    );
-    container.querySelector(".v-ssid").textContent = ssid;
-    if (pass) container.querySelector(".v-pass").textContent = pass;
-    else
-      container
-        .querySelector(".v-pass")
-        .insertAdjacentHTML("beforeend", "<i>None</i>");
-    container.querySelector(".v-type").textContent = type;
+    const strong = document.createElement("strong");
+    strong.textContent = "Wi-Fi Network";
+    container.appendChild(strong);
+    container.appendChild(document.createElement("br"));
+
+    const bSsid = document.createElement("b");
+    bSsid.textContent = "Name: ";
+    container.appendChild(bSsid);
+    container.appendChild(document.createTextNode(ssid));
+    container.appendChild(document.createElement("br"));
+
+    const bPass = document.createElement("b");
+    bPass.textContent = "Pass: ";
+    container.appendChild(bPass);
+    if (pass) {
+      container.appendChild(document.createTextNode(pass));
+    } else {
+      const it = document.createElement("i");
+      it.textContent = "None";
+      container.appendChild(it);
+    }
+    container.appendChild(document.createElement("br"));
+
+    const bSec = document.createElement("b");
+    bSec.textContent = "Security: ";
+    container.appendChild(bSec);
+    container.appendChild(document.createTextNode(type));
+
     return container;
   }
+
   if (txt.startsWith("BEGIN:VCARD")) {
     const n = (txt.match(/FN:(.*)/) || [])[1] || "";
     const tel = (txt.match(/TEL:(.*)/) || [])[1] || "";
     const em = (txt.match(/EMAIL:(.*)/) || [])[1] || "";
 
-    container.insertAdjacentHTML(
-      "beforeend",
-      `<strong>Contact Card</strong><br><b>Name:</b> <span class="v-n"></span><br><b>Phone:</b> <a class="v-tel"></a><br><b>Email:</b> <a class="v-em" target="_blank"></a>`,
-    );
-    container.querySelector(".v-n").textContent = n;
+    const strong = document.createElement("strong");
+    strong.textContent = "Contact Card";
+    container.appendChild(strong);
+    container.appendChild(document.createElement("br"));
 
-    const telEl = container.querySelector(".v-tel");
-    telEl.href = `tel:${tel}`;
-    telEl.textContent = tel;
+    const bName = document.createElement("b");
+    bName.textContent = "Name: ";
+    container.appendChild(bName);
+    container.appendChild(document.createTextNode(n));
+    container.appendChild(document.createElement("br"));
 
-    const emEl = container.querySelector(".v-em");
-    emEl.href = `mailto:${em}`;
-    emEl.textContent = em;
+    const bPhone = document.createElement("b");
+    bPhone.textContent = "Phone: ";
+    container.appendChild(bPhone);
+
+    const linkPhone = document.createElement("a");
+    linkPhone.href = `tel:${tel}`;
+    linkPhone.textContent = tel;
+    container.appendChild(linkPhone);
+    container.appendChild(document.createElement("br"));
+
+    const bEmail = document.createElement("b");
+    bEmail.textContent = "Email: ";
+    container.appendChild(bEmail);
+
+    const linkEmail = document.createElement("a");
+    linkEmail.href = `mailto:${em}`;
+    linkEmail.target = "_blank";
+    linkEmail.textContent = em;
+    container.appendChild(linkEmail);
+
     return container;
   }
 
   if (txt.startsWith("http://wa.me") || txt.startsWith("https://wa.me")) {
-    actionbtn.style.display = "flex";
-    actionbtn.innerHTML = `${actionbtnSvg.sms} Send To WA`;
-    actionbtn.onclick = () => {
-      if (chrome?.tabs) chrome.tabs.create({ url: txt });
-      else window.open(txt, "_blank");
-    };
-    return `<strong>URL Link</strong><br><a href="${txt}" target="_blank">${txt}</a>`;
+    linkAction(actionbtnSvg.sms, "Send To WA", txt);
+    const strong = document.createElement("strong");
+    strong.textContent = "URL Link";
+    container.appendChild(strong);
+    container.appendChild(document.createElement("br"));
+
+    const link = document.createElement("a");
+    link.href = txt;
+    link.target = "_blank";
+    link.textContent = txt;
+    container.appendChild(link);
+    return container;
   }
+
   if (txt.startsWith("http://t.me") || txt.startsWith("https://t.me")) {
-    actionbtn.style.display = "flex";
-    actionbtn.innerHTML = `${actionbtnSvg.sms} Send To Tele`;
-    actionbtn.onclick = () => {
-      if (chrome?.tabs) chrome.tabs.create({ url: txt });
-      else window.open(txt, "_blank");
-    };
-    return `<strong>URL Link</strong><br><a href="${txt}" target="_blank">${txt}</a>`;
+    linkAction(actionbtnSvg.sms, "Send To Tele", txt);
+    const strong = document.createElement("strong");
+    strong.textContent = "URL Link";
+    container.appendChild(strong);
+    container.appendChild(document.createElement("br"));
+
+    const link = document.createElement("a");
+    link.href = txt;
+    link.target = "_blank";
+    link.textContent = txt;
+    container.appendChild(link);
+    return container;
   }
+
   if (txt.startsWith("http://") || txt.startsWith("https://") || txt.startsWith("chrome:") || txt.startsWith("about:")) {
-    actionbtn.style.display = "flex";
-    actionbtn.appendChild(createSafeSvgIcon(actionbtnSvg.link));
-    actionbtn.appendChild(document.createTextNode(" Open Link"));
-    actionbtn.onclick = () => {
-      if (extApi && extApi.tabs) extApi.tabs.create({ url: txt });
-      else window.open(txt, "_blank");
-    };
+    linkAction(actionbtnSvg.link, "Open Link", txt);
+    const strong = document.createElement("strong");
+    strong.textContent = "URL Link";
+    container.appendChild(strong);
+    container.appendChild(document.createElement("br"));
 
-    container.insertAdjacentHTML(
-      "beforeend",
-      `<strong>URL Link</strong><br> <a class="v-link" target="_blank"></a>`,
-    );
-    const linkEl = container.querySelector(".v-link");
-    linkEl.href = txt;
-    linkEl.textContent = txt;
+    const link = document.createElement("a");
+    link.href = txt;
+    link.target = "_blank";
+    link.textContent = txt;
+    container.appendChild(link);
     return container;
   }
+
   if (txt.startsWith("geo:")) {
-    actionbtn.style.display = "flex";
-    actionbtn.appendChild(createSafeSvgIcon(actionbtnSvg.Location));
-    actionbtn.appendChild(document.createTextNode(" Open Location"));
-    actionbtn.onclick = () => {
-      if (extApi && extApi.tabs) extApi.tabs.create({ url: txt });
-      else window.open(txt, "_blank");
-    };
+    linkAction(actionbtnSvg.Location, "Open Location", txt);
+    const strong = document.createElement("strong");
+    strong.textContent = "URL Link";
+    container.appendChild(strong);
+    container.appendChild(document.createElement("br"));
 
-    container.insertAdjacentHTML(
-      "beforeend",
-      `<strong>Geo Location</strong><br> <a class="v-link" target="_blank"></a>`,
-    );
-    const linkEl = container.querySelector(".v-link");
-    linkEl.href = txt;
-    linkEl.textContent = txt;
+    const link = document.createElement("a");
+    link.href = txt;
+    link.target = "_blank";
+    link.textContent = txt;
+    container.appendChild(link);
     return container;
   }
+
   if (txt.startsWith("mailto:")) {
-    actionbtn.style.display = "flex";
-    actionbtn.appendChild(createSafeSvgIcon(actionbtnSvg.email));
-    actionbtn.appendChild(document.createTextNode(" Send Email"));
-    actionbtn.onclick = () => {
-      if (extApi && extApi.tabs) extApi.tabs.create({ url: txt });
-      else window.open(txt, "_blank");
-    };
+    linkAction(actionbtnSvg.email, "Send Email", txt);
+    const strong = document.createElement("strong");
+    strong.textContent = "URL Link";
+    container.appendChild(strong);
+    container.appendChild(document.createElement("br"));
 
-    container.insertAdjacentHTML(
-      "beforeend",
-      `<strong>Email Link</strong><br><a class="v-link" target="_blank"></a>`,
-    );
-    const linkEl = container.querySelector(".v-link");
-    linkEl.href = txt;
-    linkEl.textContent = txt;
+    const link = document.createElement("a");
+    link.href = txt;
+    link.target = "_blank";
+    link.textContent = txt;
+    container.appendChild(link);
     return container;
   }
+
   if (txt.startsWith("smsto:")) {
-    actionbtn.style.display = "flex";
-    actionbtn.appendChild(createSafeSvgIcon(actionbtnSvg.sms));
-    actionbtn.appendChild(document.createTextNode(" Send SMS"));
-    actionbtn.onclick = () => {
-      if (extApi && extApi.tabs) extApi.tabs.create({ url: txt });
-      else window.open(txt, "_blank");
-    };
+    linkAction(actionbtnSvg.sms, "Send SMS", txt);
+    const strong = document.createElement("strong");
+    strong.textContent = "URL Link";
+    container.appendChild(strong);
+    container.appendChild(document.createElement("br"));
 
-    container.insertAdjacentHTML(
-      "beforeend",
-      `<strong>SMS Link</strong><br><a class="v-link" target="_blank"></a>`,
-    );
-    const linkEl = container.querySelector(".v-link");
-    linkEl.href = txt;
-    linkEl.textContent = txt;
+    const link = document.createElement("a");
+    link.href = txt;
+    link.target = "_blank";
+    link.textContent = txt;
+    container.appendChild(link);
     return container;
   }
 
-  container.insertAdjacentHTML(
-    "beforeend",
-    `<strong>Text Result</strong><br> <span class="v-txt"></span>`,
-  );
-  container.querySelector(".v-txt").textContent = txt;
+  const strong = document.createElement("strong");
+  strong.textContent = "Text Result";
+  container.appendChild(strong);
+  container.appendChild(document.createElement("br"));
+  container.appendChild(document.createTextNode(txt));
   return container;
 }
 
 function scanQR(file) {
-  outqrtxt.innerHTML = "";
-  outqrtxt.insertAdjacentHTML("beforeend", "<i>Scanning...</i>");
+  outqrtxt.replaceChildren();
+  const scanningItalic = document.createElement("i");
+  scanningItalic.textContent = "Scanning...";
+  outqrtxt.appendChild(scanningItalic);
   scanActions.style.display = "none";
 
   const reader = new FileReader();
@@ -573,45 +667,44 @@ function scanQR(file) {
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const qrResult = jsQR(imageData.data, canvas.width, canvas.height, { inversionAttempts: "attemptBoth" });
 
+        outqrtxt.replaceChildren();
         if (qrResult && qrResult.data) {
-          outqrtxt.innerHTML = "";
           outqrtxt.appendChild(parseScanResult(qrResult.data));
           outqrtxt.setAttribute("data-raw", qrResult.data);
           saveHistory("Scanned", qrResult.data);
           scanActions.style.display = "flex";
         } else {
-          outqrtxt.innerHTML = "";
-          outqrtxt.insertAdjacentHTML(
-            "beforeend",
-            '<span style="color:red">No QR code found. Try a clearer image.</span>',
-          );
+          const errSpan = document.createElement("span");
+          errSpan.style.color = "red";
+          errSpan.textContent = "No QR code found. Try a clearer image.";
+          outqrtxt.appendChild(errSpan);
         }
       } catch (err) {
-        outqrtxt.innerHTML = "";
-        outqrtxt.insertAdjacentHTML(
-          "beforeend",
-          '<span style="color:red">Scanning failed.</span>',
-        );
+        outqrtxt.replaceChildren();
+        const errSpan = document.createElement("span");
+        errSpan.style.color = "red";
+        errSpan.textContent = "Scanning failed.";
+        outqrtxt.appendChild(errSpan);
         console.error(err);
       }
     };
     img.onerror = () => {
-      outqrtxt.innerHTML = "";
-      outqrtxt.insertAdjacentHTML(
-        "beforeend",
-        '<span style="color:red">Failed to load image.</span>',
-      );
+      outqrtxt.replaceChildren();
+      const errSpan = document.createElement("span");
+      errSpan.style.color = "red";
+      errSpan.textContent = "Failed to load image.";
+      outqrtxt.appendChild(errSpan);
     };
 
     img.src = readerEvent.target.result;
   };
 
   reader.onerror = () => {
-    outqrtxt.innerHTML = "";
-    outqrtxt.insertAdjacentHTML(
-      "beforeend",
-      '<span style="color:red">Failed to read file.</span>',
-    );
+    outqrtxt.replaceChildren();
+    const errSpan = document.createElement("span");
+    errSpan.style.color = "red";
+    errSpan.textContent = "Failed to read file.";
+    outqrtxt.appendChild(errSpan);
   };
 
   reader.readAsDataURL(file);
@@ -638,27 +731,14 @@ clipboardbtn.addEventListener("click", () => {
   });
 });
 
-// if (scanPageBtn) {
-//   scanPageBtn.addEventListener('click', () => {
-//     extApi.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-//       if (tabs && tabs[0]) {
-//         extApi.tabs.sendMessage(tabs[0].id, { action: "start_selection" }).catch(err => {
-//           alert("Cannot scan this page. \n Most of time this feature not working on Firefox \n in future we fully fix this issue");
-//         });
-//       }
-//     });
-//   });
-// }
-
 if (scanPageBtn) {
   scanPageBtn.addEventListener('click', () => {
-    alert("Cannot scan this page. \n This feature not avaliable for FireFox yet");
+    alert("Cannot scan this page. \n This feature not available for Firefox yet");
   });
 }
 
-
 function fetchAndScanExternalImage(url) {
-  outqrtxt.textContent = "";
+  outqrtxt.replaceChildren();
   const scanningText = document.createElement("i");
   scanningText.textContent = "Fetching image securely...";
   outqrtxt.appendChild(scanningText);
@@ -668,7 +748,7 @@ function fetchAndScanExternalImage(url) {
     if (response && response.dataUrl) {
       fetch(response.dataUrl).then(r => r.blob()).then(scanQR);
     } else {
-      outqrtxt.textContent = "";
+      outqrtxt.replaceChildren();
       const errSpan = document.createElement("span");
       errSpan.style.color = "red";
       errSpan.textContent = "Failed to load external image. Try saving the image to your computer first.";
@@ -676,7 +756,6 @@ function fetchAndScanExternalImage(url) {
     }
   });
 }
-
 
 window.addEventListener("dragenter", (e) => {
   e.preventDefault();
@@ -748,10 +827,6 @@ window.addEventListener("drop", async (e) => {
     generateQr();
   }
 });
-
-
-
-
 
 function manageHistoryStorage() {
   const now = Date.now();
@@ -852,7 +927,7 @@ document.getElementById("history-list").addEventListener("click", (e) => {
 function renderHistory() {
   const list = document.getElementById("history-list");
   const emptyRow = document.getElementById("empty-bin-row");
-  list.innerHTML = "";
+  list.replaceChildren();
 
   let filtered = historyState;
   if (currentHistView === "all") {
@@ -869,7 +944,10 @@ function renderHistory() {
   }
 
   if (filtered.length === 0) {
-    list.innerHTML = `<div style="text-align:center;font-size:12px;color:var(--text-muted);padding:20px;">No items found.</div>`;
+    const divEmpty = document.createElement("div");
+    divEmpty.style.cssText = "text-align:center;font-size:12px;color:var(--text-muted);padding:20px;";
+    divEmpty.textContent = "No items found.";
+    list.appendChild(divEmpty);
     return;
   }
 
@@ -877,64 +955,55 @@ function renderHistory() {
     const div = document.createElement("div");
     div.className = "history-item";
 
-    const headerDiv = document.createElement("div");
-    headerDiv.className = "history-header";
+    const header = document.createElement("div");
+    header.className = "history-header";
 
-    const badgeSpan = document.createElement("span");
-    badgeSpan.className = "history-badge";
-    badgeSpan.textContent = `${item.type} • ${item.date}`;
+    const badge = document.createElement("span");
+    badge.className = "history-badge";
+    badge.textContent = `${item.type} • ${item.date}`;
+    header.appendChild(badge);
 
     const actionsDiv = document.createElement("div");
     actionsDiv.className = "history-actions";
 
-    function createBtn(action, id, title, color, svgData) {
+    const createBtn = (action, title, color, svgMarkup) => {
       const btn = document.createElement("button");
       btn.className = "icon-btn action-btn";
       btn.setAttribute("data-action", action);
-      btn.setAttribute("data-id", id);
+      btn.setAttribute("data-id", item.id);
       btn.title = title;
       if (color) btn.style.color = color;
-      btn.appendChild(createSafeSvgIcon(svgData));
+      btn.appendChild(createSafeSvg(svgMarkup));
       return btn;
-    }
-
-    const svgIcons = {
-      restore: '<svg  xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48752C"><path d="M444-312h72v-150l57 57 51-51-144-144-144 144 51 51 57-57v150ZM312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg>',
-      delete: '<svg  xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA3323"><path d="m400-325 80-80 80 80 51-51-80-80 80-80-51-51-80 80-80-80-51 51 80 80-80 80 51 51Zm-88 181q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg>',
-      favOn: '<svg  xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA33F7"><path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z"/></svg>',
-      favOff: '<svg  xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M440-501Zm0 381L313-234q-72-65-123.5-116t-85-96q-33.5-45-49-87T40-621q0-94 63-156.5T260-840q52 0 99 22t81 62q34-40 81-62t99-22q81 0 136 45.5T831-680h-85q-18-40-53-60t-73-20q-51 0-88 27.5T463-660h-46q-31-45-70.5-72.5T260-760q-57 0-98.5 39.5T120-621q0 33 14 67t50 78.5q36 44.5 98 104T440-228q26-23 61-53t56-50l9 9 19.5 19.5L605-283l9 9q-22 20-56 49.5T498-172l-58 52Zm280-160v-120H600v-80h120v-120h80v120h120v80H800v120h-80Z"/></svg>',
-      use: '<svg  xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M314-115q-104-48-169-145T80-479q0-26 2.5-51t8.5-49l-46 27-40-69 191-110 110 190-70 40-54-94q-11 27-16.5 56t-5.5 60q0 97 53 176.5T354-185l-40 70Zm306-485v-80h109q-46-57-111-88.5T480-800q-55 0-104 17t-90 48l-40-70q50-35 109-55t125-20q79 0 151 29.5T760-765v-55h80v220H620ZM594 0 403-110l110-190 69 40-57 98q118-17 196.5-107T800-480q0-11-.5-20.5T797-520h81q1 10 1.5 19.5t.5 20.5q0 135-80.5 241.5T590-95l44 26-40 69Z"/></svg>',
-      bin: '<svg  xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA3323"><path d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z"/></svg>',
     };
 
     if (item.deletedAt) {
-      actionsDiv.appendChild(createBtn("restore", item.id, "Restore", null, svgIcons.restore));
-      actionsDiv.appendChild(createBtn("delete", item.id, "Delete Forever", "var(--danger)", svgIcons.delete));
+      actionsDiv.appendChild(createBtn("restore", "Restore", null, '<svg height="20px" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" width="20px" fill="#48752C"><path d="M444-312h72v-150l57 57 51-51-144-144-144 144 51 51 57-57v150ZM312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg>'));
+      actionsDiv.appendChild(createBtn("delete", "Delete Forever", "var(--danger)", '<svg height="20px" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" width="20px" fill="#EA3323"><path d="m400-325 80-80 80 80 51-51-80-80 80-80-51-51-80 80-80-80-51 51 80 80-80 80 51 51Zm-88 181q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg>'));
     } else {
-      actionsDiv.appendChild(createBtn("fav", item.id, "Favorite", null, item.isFav ? svgIcons.favOn : svgIcons.favOff));
-      actionsDiv.appendChild(createBtn("use", item.id, "Re-Use", null, svgIcons.use));
-      actionsDiv.appendChild(createBtn("bin", item.id, "Move to Trash", null, svgIcons.bin));
+      const favSvg = item.isFav
+        ? '<svg height="20px" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" width="20px" fill="#EA33F7"><path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z"/></svg>'
+        : '<svg height="20px" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M440-501Zm0 381L313-234q-72-65-123.5-116t-85-96q-33.5-45-49-87T40-621q0-94 63-156.5T260-840q52 0 99 22t81 62q34-40 81-62t99-22q81 0 136 45.5T831-680h-85q-18-40-53-60t-73-20q-51 0-88 27.5T463-660h-46q-31-45-70.5-72.5T260-760q-57 0-98.5 39.5T120-621q0 33 14 67t50 78.5q36 44.5 98 104T440-228q26-23 61-53t56-50l9 9 19.5 19.5L605-283l9 9q-22 20-56 49.5T498-172l-58 52Zm280-160v-120H600v-80h120v-120h80v120h120v80H800v120h-80Z"/></svg>';
+
+      actionsDiv.appendChild(createBtn("fav", "Favorite", null, favSvg));
+      actionsDiv.appendChild(createBtn("use", "Re-Use", null, '<svg height="20px" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M314-115q-104-48-169-145T80-479q0-26 2.5-51t8.5-49l-46 27-40-69 191-110 110 190-70 40-54-94q-11 27-16.5 56t-5.5 60q0 97 53 176.5T354-185l-40 70Zm306-485v-80h109q-46-57-111-88.5T480-800q-55 0-104 17t-90 48l-40-70q50-35 109-55t125-20q79 0 151 29.5T760-765v-55h80v220H620ZM594 0 403-110l110-190 69 40-57 98q118-17 196.5-107T800-480q0-11-.5-20.5T797-520h81q1 10 1.5 19.5t.5 20.5q0 135-80.5 241.5T590-95l44 26-40 69Z"/></svg>'));
+      actionsDiv.appendChild(createBtn("bin", "Move to Trash", null, '<svg height="20px" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" width="20px" fill="#EA3323"><path d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg>'));
     }
 
-    headerDiv.appendChild(badgeSpan);
-    headerDiv.appendChild(actionsDiv);
+    header.appendChild(actionsDiv);
 
-    const textDiv = document.createElement("div");
-    textDiv.className = "history-text";
-    textDiv.title = item.data;
-    textDiv.textContent = item.data;
+    const txtDiv = document.createElement("div");
+    txtDiv.className = "history-text";
+    txtDiv.title = item.data;
+    txtDiv.textContent = item.data;
 
-    div.appendChild(headerDiv);
-    div.appendChild(textDiv);
+    div.appendChild(header);
+    div.appendChild(txtDiv);
     list.appendChild(div);
   });
 }
-function createSafeSvgIcon(svgStr) {
-  return new DOMParser().parseFromString(svgStr, "image/svg+xml").documentElement;
-}
 
 loadHistory();
-
 
 if (extApi && extApi.storage && extApi.storage.local) {
   extApi.storage.local.get(["qrurl", "qrimageurl"], (result) => {

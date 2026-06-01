@@ -94,15 +94,12 @@ function showMobileMenu(options) {
 
     document.body.appendChild(mobileMenu);
     
-    // Animate up
     requestAnimationFrame(() => {
         mobileMenu.style.transform = 'translateY(0)';
     });
 }
 
-// 1. Long Press logic (Images, Links, Media, Page)
 document.addEventListener('contextmenu', (e) => {
-    // IMPORTANT: No e.preventDefault() so we don't break the native browser menu
     const target = e.target;
     const link = target.closest('a')?.href;
     const img = target.closest('img')?.src;
@@ -120,16 +117,12 @@ document.addEventListener('contextmenu', (e) => {
     }
     
     if (options.length > 0) {
-        // Slight delay allows the native menu to position itself before our bottom sheet slides up
         setTimeout(() => showMobileMenu(options), 300);
     }
 });
 
-// 2. Smart Text Selection Logic
 document.addEventListener('selectionchange', () => {
     clearTimeout(selectionTimeout);
-    
-    // Debounce: Wait 500ms after the user finishes adjusting selection handles
     selectionTimeout = setTimeout(() => {
         const text = window.getSelection().toString().trim();
         if (text && text.length > 0) {
@@ -140,7 +133,6 @@ document.addEventListener('selectionchange', () => {
     }, 500);
 });
 
-// Close menu if user taps elsewhere
 document.addEventListener('pointerdown', (e) => {
     if (mobileMenu && !mobileMenu.contains(e.target)) {
         removeMobileMenu();
