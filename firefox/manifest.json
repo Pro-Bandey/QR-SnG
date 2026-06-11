@@ -4,7 +4,7 @@
   "version": "3.8.5",
   "description": "QR Code Scanner & Generator",
   "author": "Pro Bandey",
-  "homepage_url": "https://github.io/?-pro=QR-SnG",
+  "homepage_url": "https://Pro-Bandey.io/Projects/?Pro=QR-SnG",
 
   "icons": {
     "16": "icons/16.png",
@@ -27,6 +27,7 @@
     "default_title": "QR Code Scanner & Generator",
     "default_panel": "index.html"
   },
+
   "permissions": [
     "activeTab",
     "contextMenus",
@@ -38,10 +39,6 @@
 
   "host_permissions": ["<all_urls>"],
 
-  "background": {
-    "scripts": ["js/background.js"]
-  },
-
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -50,9 +47,14 @@
     }
   ],
 
+  "background": {
+    "scripts": ["js/background.js"]
+  },
+
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self';"
   },
+
   "browser_specific_settings": {
     "gecko": {
       "id": "qr-sng@pro-bandey.com",
