@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "QR Code Scanner & Generator",
-  "version": "3.8.5",
+  "version": "4.0.1",
   "description": "QR Code Scanner & Generator",
   "author": "Pro Bandey",
-  "homepage_url": "https://Pro-Bandey.io/?id==QR-SnG",
+  "homepage_url": "https://Pro-Bandey.io/?rdm=QR-SnG",
 
   "icons": {
     "16": "icons/16.png",
